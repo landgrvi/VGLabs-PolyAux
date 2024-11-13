@@ -1,0 +1,49 @@
+{
+  "slug": "MyPlugin",
+  "name": "MyPlugin",
+  "version": "2.0.0",
+  "license": "GPLv3+",
+  "brand": "VGLabs",
+  "author": "Victoria Grace Landgraf",
+  "authorEmail": "",
+  "authorUrl": "",
+  "pluginUrl": "",
+  "manualUrl": "",
+  "sourceUrl": "",
+  "donateUrl": "",
+  "changelogUrl": "",
+  "modules": [
+    {
+      "slug": "MyModule",
+      "name": "MyModule",
+      "description": "Simple sine oscillator",
+      "tags": [
+        "VCO"
+      ]
+    },
+    {
+      "slug": "InsOutsGains",
+      "name": "Poly Inputs, Outputs, and Gains",
+      "description": "Polyphonic Routing Assistant",
+      "tags": [
+        "Polyphonic"
+      ]
+    },
+    {
+      "slug": "GainsSendsReturns",
+      "name": "PolyAux",
+      "description": "Expander for Polyphonic Routing Assistant",
+      "tags": [
+        "Polyphonic"
+      ]
+    },
+    {
+      "slug": "Outs",
+      "name": "Outs",
+      "description": "Output expander for Aux8",
+      "tags": [
+        "Polyphonic"
+      ]
+    }
+  ]
+}
