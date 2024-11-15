@@ -39,7 +39,7 @@
          offset="0"
          id="stop3129" />
       <stop
-         style="stop-color:#0081fd;stop-opacity:1;"
+         style="stop-color:#0044fd;stop-opacity:1;"
          offset="1"
          id="stop3131" />
     </linearGradient>
@@ -53,7 +53,7 @@
        fy="214.20306"
        r="21.381561"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.7328335,0,0,1.7299257,-157.98841,-165.0669)" />
+       gradientTransform="matrix(1.5867476,0,0,1.5840849,-118.85382,-135.88732)" />
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient20119"
@@ -63,7 +63,7 @@
        x2="111.71867"
        y2="249.21537"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(2.4488189,0,0,1,-161.86012,0)" />
+       gradientTransform="matrix(1.9606299,0,0,1,-94.620215,18.520839)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -72,9 +72,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="246.47722"
-     inkscape:cy="192.43406"
+     inkscape:zoom="1.4"
+     inkscape:cx="325.35714"
+     inkscape:cy="205.35714"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -86,7 +86,7 @@
      inkscape:window-width="1920"
      inkscape:window-height="1018"
      inkscape:window-x="0"
-     inkscape:window-y="30"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:snap-bbox-midpoints="true"
      inkscape:snap-nodes="false"
@@ -119,18 +119,18 @@
        x="0"
        y="168.49997" />
     <ellipse
-       style="fill:url(#radialGradient3135);fill-opacity:1;stroke:none;stroke-width:2.30793;stroke-linejoin:round;stroke-dasharray:none"
+       style="fill:url(#radialGradient3135);fill-opacity:1;stroke:none;stroke-width:2.11336;stroke-linejoin:round;stroke-dasharray:none"
        id="path3127"
-       cx="10.592325"
-       cy="205.48848"
-       rx="37.050694"
-       ry="36.988514" />
+       cx="35.514629"
+       cy="203.4285"
+       rx="33.927147"
+       ry="33.870209" />
     <rect
-       style="display:inline;fill:url(#linearGradient20121);fill-opacity:1;stroke:none;stroke-width:2.08597;stroke-linejoin:round;stroke-dasharray:none"
+       style="display:inline;fill:url(#linearGradient20121);fill-opacity:1;stroke:none;stroke-width:1.8665;stroke-linejoin:round;stroke-dasharray:none"
        id="rect20113"
-       width="83.120819"
+       width="66.55011"
        height="53.988441"
-       x="28.597843"
-       y="222.22115" />
+       x="57.868565"
+       y="240.74173" />
   </g>
 </svg>
