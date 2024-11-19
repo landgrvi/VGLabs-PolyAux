@@ -10,7 +10,8 @@ struct GainsSendsReturns : Aux8<GainsSendsReturns> {
 	enum ParamId {
 		ENUMS(GAIN_PARAMS, 8),
 		ENUMS(MUTE_PARAMS, 8),
-		RETURN_GAIN,
+		RETURN_PAN_PARAM,
+		RETURN_GAIN_PARAM,
 		SOLO_PARAM,
 		MUTE_PARAM,
 		TEST_PARAM,

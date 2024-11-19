@@ -9,19 +9,18 @@ using namespace rack;
 InsOutsGains::InsOutsGains() {
 //common stuff happens in Aux8 constructor
 
+	configParam(MASTER_PAN_PARAM, -1.f, 1.f, 0.f, "Master pan", "%", 0, 100);
+	configParam(MASTER_GAIN_PARAM, 0.f, M_SQRT2, 1.f, "Master level", " dB", -10, 40);
+	configParam(MASTER_MUTE_PARAM, 0.f, 1.f, 0.f, "Master mute");
 	configParam(DRYPLUS_PARAM, 0.f, 1.f, 1.f, "Dry/Wet mix", "%", 0.f, 100.f);
 	configInput(INTERLEAVED_INPUT, "Interleaved");
 	configInput(LEFT_INPUT, "Left");
 	configInput(RIGHT_INPUT, "Right");
-	//configOutput(INTERLEAVED_PREGAIN_OUTPUT, "Interleaved pre-gain");
-	//configOutput(LEFT_PREGAIN_OUTPUT, "Left pre-gain");
-	//configOutput(RIGHT_PREGAIN_OUTPUT, "Right pre-gain");
 	configOutput(INTERLEAVED_WET_OUTPUT, "Interleaved wet");
 	configOutput(LEFT_WET_OUTPUT, "Left wet");
 	configOutput(RIGHT_WET_OUTPUT, "Right wet");
 
 	firstInput.setPorts(&inputs[INTERLEAVED_INPUT], &inputs[LEFT_INPUT], &inputs[RIGHT_INPUT]);
-	//pregainOutput.setPorts(&outputs[INTERLEAVED_PREGAIN_OUTPUT], &outputs[LEFT_PREGAIN_OUTPUT], &outputs[RIGHT_PREGAIN_OUTPUT]);
 	wetOutput.setPorts(&outputs[INTERLEAVED_WET_OUTPUT], &outputs[LEFT_WET_OUTPUT], &outputs[RIGHT_WET_OUTPUT]);
 
 	returnAndFirstWithWet.setPorts(&returnInput, &firstInput, &wetOutput);
@@ -42,6 +41,7 @@ void InsOutsGains::process(const ProcessArgs &args) {
 		//DEBUG("wetOutput: %f   firstInput: %f", wetOutput.ilAudio[0][3], firstInput.ilAudio[0][3]);
 		//DEBUG("%" PRId64 " numModules:%i", id, numModules);
 		//DEBUG("%" PRId64, id);
+		//DEBUG("%f %f", debugValue1, debugValue2);
 		//updateGains();
 	}
 
@@ -71,7 +71,7 @@ void InsOutsGains::process(const ProcessArgs &args) {
 		wetInput.setAudio(rightSource->wetAudio);
 		wetInput.setChannels(rightSource->wetChans);
 		wetOutput.setChannels(std::max(wetInput.ilChannels, wetOutput.ilChannels), std::max(wetInput.leftChannels, wetOutput.leftChannels), std::max(wetInput.rightChannels, wetOutput.rightChannels));
-		returnAndFirstWithWet.blendAudio(params[DRYPLUS_PARAM].getValue(), params[RETURN_GAIN].getValue(), &wetInput);
+		returnAndFirstWithWet.blendAudio(params[DRYPLUS_PARAM].getValue(), params[RETURN_GAIN_PARAM].getValue(), &wetInput, params[MASTER_GAIN_PARAM].getValue() * (1.f - params[MASTER_MUTE_PARAM].getValue()) );
 
 		soloToRight = params[SOLO_PARAM].getValue();
 		numMe = 1;
@@ -82,11 +82,24 @@ void InsOutsGains::process(const ProcessArgs &args) {
 		
 		rightExpander.module->leftExpander.messageFlipRequested = true; // request rightward module to flip its leftExpander, as I've now written to its producer
 	} else {
-		returnAndFirstWithWet.blendAudio(params[DRYPLUS_PARAM].getValue(), params[RETURN_GAIN].getValue());
+		returnAndFirstWithWet.blendAudio(params[DRYPLUS_PARAM].getValue(), params[RETURN_GAIN_PARAM].getValue(), params[MASTER_GAIN_PARAM].getValue() * (1.f - params[MASTER_MUTE_PARAM].getValue()));
 		soloTracks = params[SOLO_PARAM].getValue();
 		numModules = 1;
 	}
 	
+	float panVal = params[MASTER_PAN_PARAM].getValue();
+	simd::float_4* full = panVal != 0 ? (panVal < 0 ? wetOutput.leftAudio : wetOutput.rightAudio) : nullptr;
+	simd::float_4* chopped = panVal != 0 ? (panVal > 0 ? wetOutput.leftAudio : wetOutput.rightAudio) : nullptr;
+	simd::float_4 amtChop = 1.f - abs(panVal);
+	if (full && chopped) {
+		for (unsigned int i = 0; i < 2; i++) {
+			full[i] += chopped[i] * (1 - amtChop);
+			chopped[i] *= amtChop;
+		}
+		//TODO: interleaved
+		wetOutput.pushAudio();
+	}
+
 	if (expandsLeftward) {
 		expMessage* leftSink = (expMessage*)(leftExpander.module->rightExpander.producerMessage); // this is the left module's; I write to it and request flip
 		for (unsigned int i = 0; i < 8; i++) {
@@ -94,9 +107,9 @@ void InsOutsGains::process(const ProcessArgs &args) {
 		}
 		leftSink->pregainChans = pregainOutput.ilChannels;
 		for (unsigned int i = 0; i < 8; i++) {
-			leftSink->wetAudio[i] = wetInput.allAudio[i] + returnInput.allAudio[i] * simd::pow(params[RETURN_GAIN].getValue(), 2);
+			leftSink->wetAudio[i] = wetOutput.allAudio[i];
 		}
-		leftSink->wetChans = std::max(wetInput.ilChannels, returnInput.ilChannels);
+		leftSink->wetChans = std::max(wetOutput.ilChannels, returnInput.ilChannels);
 		leftExpander.module->rightExpander.messageFlipRequested = true; // request left module to flip its rightExpander, as I've now written to its producer
 	}
 } //process
@@ -124,7 +137,10 @@ struct InsOutsGainsWidget : Aux8Widget<InsOutsGains> {
 		addOutput(createOutputCentered<WhitePJ301MPort>(mm2px(Vec(8.5, 52)), module, InsOutsGains::LEFT_WET_OUTPUT));
 		addOutput(createOutputCentered<RedPJ301MPort>(mm2px(Vec(8.5, 61)), module, InsOutsGains::RIGHT_WET_OUTPUT));
 		
-		addParam(createParamCentered<ChickenHeadKnobIvory>(mm2px(Vec(8.5, 12+(15*5))), module, InsOutsGains::DRYPLUS_PARAM));
+		addParam(createParamCentered<ChickenHeadKnobIvory>(mm2px(Vec(8.5, 12+(15*4))), module, InsOutsGains::MASTER_PAN_PARAM));
+		addParam(createParamCentered<VCVSlider>(mm2px(Vec(8.5, 93)), module, InsOutsGains::MASTER_GAIN_PARAM));
+		addParam(createParamCentered<btnMute>(mm2px(Vec(8.5, 110)), module, InsOutsGains::MASTER_MUTE_PARAM));
+		addParam(createParamCentered<ChickenHeadKnobIvory>(mm2px(Vec(8.5, 12+(15*7.2))), module, InsOutsGains::DRYPLUS_PARAM));
 		//addParam(createLightParamCentered<TestButton<SmallSimpleLight<RedLight>>>(mm2px(Vec(8.5,12+(15*5))), module, InsOutsGains::TEST_PARAM, InsOutsGains::TEST_LIGHT));
 		
 		//addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(8.5, 99)), module, InsOutsGains::INTERLEAVED_PREGAIN_OUTPUT));

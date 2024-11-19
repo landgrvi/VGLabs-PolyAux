@@ -79,7 +79,7 @@ void GainsSendsReturns::process(const ProcessArgs &args) {
 			wetAudio.clearAudio();
 			wetAudio.setChannels(returnInput.ilChannels);
 		}
-		returnWithWet.addLevelAudio(params[RETURN_GAIN].getValue());
+		returnWithWet.addLevelAudio(params[RETURN_GAIN_PARAM].getValue());
 		for (unsigned int i = 0; i < 8; i++) {
 			leftSink->wetAudio[i] = wetAudio.allAudio[i];
 		}

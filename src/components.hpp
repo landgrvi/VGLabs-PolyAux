@@ -25,13 +25,7 @@ struct ChickenHeadKnobBlack : ChickenHeadKnob {
 
 struct ChickenHeadKnobIvory : ChickenHeadKnob {
 	ChickenHeadKnobIvory() {
-		//setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/chickenhead_ivory_tweaked.svg")));
 		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/ch3divory.svg")));
-		//setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/ch3divoryBG.svg")));
-		//setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/radialgradient.svg")));
-		//setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "/home/victoria/Software/DISTRHO/Cardinal/plugins/ZamAudio/res/components/button-on.svg")));
-		//setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/ch3divoryPTR.svg")));
-		//bg->setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "/home/victoria/Software/DISTRHO/Cardinal/plugins/ZamAudio/res/components/button-on.svg")));
 	}
 };	
 
@@ -61,24 +55,141 @@ struct ClearLightLatch : SvgSwitch {
 struct WhitePJ301MPort : SvgPort {
 	WhitePJ301MPort() {
 		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MWhite.svg")));
+		shadow->opacity = 0.0;
 	}
 };
 
 struct RedPJ301MPort : SvgPort {
 	RedPJ301MPort() {
 		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MRed.svg")));
+		shadow->opacity = 0.0;
 	}
 };
 
 struct PinkPJ301MPort : SvgPort {
 	PinkPJ301MPort() {
 		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MPink.svg")));
+		shadow->opacity = 0.0;
 	}
 };
 
 struct WhiteRedPJ301MPort : SvgPort {
 	WhiteRedPJ301MPort() {
 		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PJ301MWhiteRed.svg")));
+		shadow->opacity = 0.0;
 	}
 };
+
+
+// From MindMeldModular GenericComponents.hpp
+// Buttons and switches
+
+void drawRectHalo(const Widget::DrawArgs &args, Vec boxSize, NVGcolor haloColor, float posX);
+void drawRoundHalo(const Widget::DrawArgs &args, Vec boxSize, NVGcolor haloColor);
+
+
+struct SvgSwitchWithHalo : SvgSwitch {
+	// internal
+	bool manualDrawTopOverride = false;
+	
+	// derived classes must set up
+	NVGcolor haloColor = nvgRGB(0xFF, 0xFF, 0xFF);// this should match the color of fill of the on button
+	bool isRect = false;
+
+	SvgSwitchWithHalo() {
+		shadow->opacity = 0.0f;// Turn off shadows
+	}
+
+	void draw(const DrawArgs &args) override {
+		ParamQuantity* paramQuantity = getParamQuantity();
+		if (!paramQuantity || paramQuantity->getValue() < 0.5f || manualDrawTopOverride) {
+			SvgSwitch::draw(args);
+		}
+	}	
+	
+	void drawLayer(const DrawArgs &args, int layer) override {
+		if (layer == 1) {
+			ParamQuantity* paramQuantity = getParamQuantity();
+			if (!paramQuantity || paramQuantity->getValue() < 0.5f) {
+				// if no module or if switch is off, no need to do anything in layer 1
+				return;
+			}
+
+			if (settings::haloBrightness != 0.f) {
+				if (isRect) {
+					drawRectHalo(args, box.size, haloColor, 0.0f);
+				}
+				else {
+					drawRoundHalo(args, box.size, haloColor);
+				}
+			}
+			manualDrawTopOverride = true;
+			draw(args);
+			manualDrawTopOverride = false;
+		}
+		SvgSwitch::drawLayer(args, layer);
+	}
+};
+// End direct copy from MindMeldModular
+
+void drawRoundedRectHalo(const Widget::DrawArgs &args, Vec boxSize, NVGcolor haloColor);
+
+struct SvgSwitchWithRoundedRectHalo : SvgSwitch {
+
+	// internal
+	bool manualDrawTopOverride = false;
+	
+	// derived classes must set up
+	NVGcolor haloColor = nvgRGB(0xFF, 0xFF, 0xFF);// this should match the color of fill of the on button
+	bool isRect = false;
+
+	SvgSwitchWithRoundedRectHalo() {
+		shadow->opacity = 0.0f;// Turn off shadows
+	}
+
+	void draw(const DrawArgs &args) override {
+		ParamQuantity* paramQuantity = getParamQuantity();
+		if (!paramQuantity || paramQuantity->getValue() < 0.5f || manualDrawTopOverride) {
+			SvgSwitch::draw(args);
+		}
+	}	
+	
+	void drawLayer(const DrawArgs &args, int layer) override {
+		if (layer == 1) {
+			ParamQuantity* paramQuantity = getParamQuantity();
+			if (!paramQuantity || paramQuantity->getValue() < 0.5f) {
+				// if no module or if switch is off, no need to do anything in layer 1
+				return;
+			}
+
+			if (settings::haloBrightness != 0.f) {
+				drawRoundedRectHalo(args, box.size, haloColor);
+			}
+			manualDrawTopOverride = true;
+			draw(args);
+			manualDrawTopOverride = false;
+		}
+		SvgSwitch::drawLayer(args, layer);
+	}
+};	
+
+struct btnMute : SvgSwitchWithRoundedRectHalo {
+	btnMute() {
+		momentary = false;
+		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/MuteButtonGrey.svg")));
+		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/MuteButtonRed.svg")));
+		haloColor = nvgRGB(0xFF, 0x00, 0x00);// this should match the color of fill of the on button
+	}
+
+};
+		
+struct btnSolo : SvgSwitchWithRoundedRectHalo {
+	btnSolo() {
+		momentary = false;
+		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/SoloButtonGrey.svg")));
+		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/SoloButtonGreen.svg")));
+		haloColor = nvgRGB(0x00, 0xFF, 0x00);// this should match the color of fill of the on button
+	}
+};
+		
 

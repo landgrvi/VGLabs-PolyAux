@@ -10,13 +10,17 @@ struct InsOutsGains : Aux8<InsOutsGains> {
 	comboAudioBlended returnAndFirstWithWet;
 	
 	enum ParamId {
+		MASTER_PAN_PARAM,
+		MASTER_GAIN_PARAM,
+		MASTER_MUTE_PARAM,
+		DRYPLUS_PARAM,
 		ENUMS(GAIN_PARAMS, 8),
 		ENUMS(MUTE_PARAMS, 8),
-		RETURN_GAIN,
+		RETURN_PAN_PARAM,
+		RETURN_GAIN_PARAM,
 		SOLO_PARAM,
 		MUTE_PARAM,
 		TEST_PARAM,
-		DRYPLUS_PARAM,
 		PARAMS_LEN
 	};
 	enum InputId {
@@ -49,6 +53,11 @@ struct InsOutsGains : Aux8<InsOutsGains> {
 		LIGHTS_LEN
 	};
 	
+	simd::float_4 masterPanLeft = 0.5f;
+	simd::float_4 masterPanRight = 0.5f;
+	float debugValue1 = -5.f;
+	float debugValue2 = -6.f;
+	
 	comboAudioIn firstInput; // from input ports
 	comboAudioOut pregainOutput; // to right module and output ports
 	comboAudioOut wetOutput; // to output ports
@@ -63,5 +72,7 @@ struct InsOutsGains : Aux8<InsOutsGains> {
 	void process(const ProcessArgs &args) override ;
 	inline bool calcLeftExpansion() override ;
 	//void updateGains() ;
+	
+	
 	
 };

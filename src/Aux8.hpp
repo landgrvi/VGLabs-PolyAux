@@ -23,6 +23,10 @@ struct Aux8 : Module {
 	bool expandsRightward = false;
 	bool expandsLeftward = false;
 	
+	int panLaw = 0;
+	simd::float_4 trackPanLeft = 0.5f;
+	simd::float_4 trackPanRight = 0.5f;
+	
 	comboAudioOut sendOutput; // to effect
 	comboAudioIn returnInput; // from effect 
 
@@ -44,7 +48,8 @@ struct Aux8 : Module {
 		configInput(TModule::INTERLEAVED_RETURN, "Interleaved return");
 		configInput(TModule::LEFT_RETURN, "Left return");
 		configInput(TModule::RIGHT_RETURN, "Right return");
-		configParam(TModule::RETURN_GAIN, 0.f, M_SQRT2, 1.f, "Return level", " dB", -10, 40);
+		configParam(TModule::RETURN_PAN_PARAM, -1.f, 1.f, 0.f, "Return pan", "%", 0, 100);
+		configParam(TModule::RETURN_GAIN_PARAM, 0.f, M_SQRT2, 1.f, "Return level", " dB", -10, 40);
 		configParam(TModule::SOLO_PARAM, 0.f, 1.f, 0.f, "Solo");
 		configParam(TModule::MUTE_PARAM, 0.f, 1.f, 0.f, "Mute");
 		
@@ -76,6 +81,8 @@ struct Aux8 : Module {
 		}
 		this->lights[TModule::SOLO_LIGHT].setBrightness(soloMe = this->params[TModule::SOLO_PARAM].getValue());
 		this->lights[TModule::MUTE_LIGHT].setBrightness(muteMe = this->params[TModule::MUTE_PARAM].getValue());
+		this->trackPanLeft = params[TModule::RETURN_PAN_PARAM].getValue();
+		this->trackPanRight = 1.f - this->trackPanLeft;
 	} //updateGains
 	
 	virtual inline bool calcLeftExpansion() {
@@ -85,6 +92,19 @@ struct Aux8 : Module {
 	virtual inline bool calcRightExpansion() {
 		return rightExpander.module && rightExpander.module->model == modelGainsSendsReturns;
 	}
+
+	json_t* dataToJson() override {
+		json_t* rootJ = json_object();
+		json_object_set_new(rootJ, "panLaw", json_integer(panLaw));
+		return rootJ;
+	}
+
+	void dataFromJson(json_t* rootJ) override {
+		json_t* panLawJ = json_object_get(rootJ, "panLaw");
+		if (panLawJ)
+			panLaw = json_integer_value(panLawJ);
+	}
+	
 }; // Aux8	
 
 template<typename TModule>
@@ -116,9 +136,12 @@ struct Aux8Widget : ModuleWidget {
 		addInput(createInputCentered<WhitePJ301MPort>(Vec(xpos, box.pos.y + mm2px(52)), module, TModule::LEFT_RETURN));
 		addInput(createInputCentered<RedPJ301MPort>(Vec(xpos, box.pos.y + mm2px(61)), module, TModule::RIGHT_RETURN));
 
-		addParam(createParamCentered<VCVSlider>(Vec(xpos, box.pos.y + mm2px(80)), module, TModule::RETURN_GAIN));
-		addParam(createLightParamCentered<VCVLightBezelLatch<MediumLight<GreenLight>>>(Vec(xpos, box.pos.y + mm2px(105)), module, TModule::SOLO_PARAM, TModule::SOLO_LIGHT));
-		addParam(createLightParamCentered<VCVLightBezelLatch<MediumLight<RedLight>>>(Vec(xpos, box.pos.y + mm2px(114)), module, TModule::MUTE_PARAM, TModule::MUTE_LIGHT));
+		addParam(createParamCentered<ChickenHeadKnobIvory>(Vec(xpos, mm2px(12+(15*4))), module, TModule::RETURN_PAN_PARAM));
+		addParam(createParamCentered<VCVSlider>(Vec(xpos, box.pos.y + mm2px(93)), module, TModule::RETURN_GAIN_PARAM));
+		//addParam(createLightParamCentered<VCVLightBezelLatch<MediumLight<GreenLight>>>(Vec(xpos, box.pos.y + mm2px(105)), module, TModule::SOLO_PARAM, TModule::SOLO_LIGHT));
+		//addParam(createLightParamCentered<VCVLightBezelLatch<MediumLight<RedLight>>>(Vec(xpos, box.pos.y + mm2px(114)), module, TModule::MUTE_PARAM, TModule::MUTE_LIGHT));
+		addParam(createParamCentered<btnMute>(Vec(xpos, box.pos.y + mm2px(110)), module, TModule::MUTE_PARAM));
+		addParam(createParamCentered<btnSolo>(Vec(xpos, box.pos.y + mm2px(116)), module, TModule::SOLO_PARAM));
 	}
 
 	void draw(const DrawArgs& args) override {
@@ -135,6 +158,12 @@ struct Aux8Widget : ModuleWidget {
 			ModuleWidget::draw(args);
 		}
 	} // draw
+	
+	void appendContextMenu(Menu* menu) override {
+		TModule* module = getModule<TModule>();
+		menu->addChild(new MenuSeparator);
+		menu->addChild(createIndexPtrSubmenuItem("Pan law", {"-6 dB (linear)", "-3 dB"}, &module->panLaw));
+	}
 	
 	void step() override {
 		if (module) {
