@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="7.999999mm"
+   height="3.0596261mm"
+   viewBox="0 0 7.999999 3.0596262"
+   version="1.1"
+   id="svg1995"
+   sodipodi:docname="SoloButton.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1997"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="24.829854"
+     inkscape:cx="10.430992"
+     inkscape:cy="8.6387942"
+     inkscape:window-width="1920"
+     inkscape:window-height="1018"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1992" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-72.543407,-152.61812)">
+    <path
+       id="rect448"
+       style="fill:#008000;fill-opacity:1;stroke:#461621;stroke-width:0.195121;stroke-dasharray:none;stroke-opacity:1;stroke-linejoin:bevel"
+       d="m 74.376282,152.7157 v 0.008 a 1.8725552,1.4290936 0 0 0 -1.735314,1.42424 1.8725552,1.4290936 0 0 0 1.735314,1.42425 v 0.008 h 4.529864 v -0.0263 a 1.8725552,1.4290936 0 0 0 1.5397,-1.40559 1.8725552,1.4290936 0 0 0 -1.5397,-1.4061 v -0.0258 z" />
+    <g
+       aria-label="S"
+       id="text4930"
+       style="font-size:3.3514px;font-family:OCRA;-inkscape-font-specification:'OCRA, Normal';text-align:center;text-anchor:middle;fill:#461621;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:bevel">
+      <path
+         d="m 76.064157,152.91116 q 0.02011,-0.003 0.442385,-0.003 0.422276,0 0.445736,0.003 0.154164,0.0201 0.258058,0.12736 0.03351,0.0369 0.05697,0.0771 0.02681,0.0402 0.04357,0.0871 0.01676,0.0436 0.02011,0.0938 0.0067,0.0536 -0.0067,0.0905 -0.01005,0.0369 -0.04022,0.067 -0.04692,0.0436 -0.110597,0.0436 -0.01676,0 -0.02346,0 -0.0067,0 -0.02011,-0.003 -0.04357,-0.0134 -0.07038,-0.0436 -0.04022,-0.0436 -0.04692,-0.1106 0,-0.0235 -0.0067,-0.0402 -0.01676,-0.0469 -0.06703,-0.0637 l -0.01341,-0.007 h -0.412222 -0.415574 l -0.0067,0.007 q -0.03016,0.0201 -0.01676,0.0503 0.0067,0.007 0.59655,0.76747 0.593197,0.76077 0.603251,0.77417 0.04692,0.0704 0.05697,0.15417 0.02346,0.18768 -0.124002,0.31838 -0.06368,0.0536 -0.14411,0.0737 -0.03686,0.0101 -0.09049,0.0134 -0.05027,0 -0.398817,0 -0.418925,0 -0.442385,-0.003 -0.154164,-0.0201 -0.258058,-0.12736 -0.103893,-0.10724 -0.12065,-0.25805 -0.01005,-0.0938 0.04357,-0.15082 0.0067,-0.0101 0.01341,-0.0168 0.01005,-0.007 0.02011,-0.0101 0.01005,-0.007 0.01676,-0.0101 0.01005,-0.003 0.02346,-0.007 0.01005,-0.003 0.01676,-0.003 0.01005,-0.003 0.02346,-0.003 0.06368,0 0.110596,0.0436 0.01005,0.0101 0.01676,0.0201 0.01005,0.007 0.01341,0.0201 0.0067,0.0101 0.01005,0.0235 0.0067,0.0101 0.0067,0.0235 0.0034,0.0134 0.0034,0.0268 0.0034,0.0268 0.0067,0.0402 0.02011,0.0469 0.06703,0.0637 l 0.0134,0.007 h 0.412223 0.40887 l 0.01005,-0.003 q 0.03687,-0.0168 0.02011,-0.0503 0,-0.007 -0.596549,-0.76747 -0.593198,-0.76412 -0.603252,-0.77752 -0.05697,-0.0905 -0.05697,-0.19774 0,-0.11059 0.06033,-0.19773 0.04357,-0.067 0.107245,-0.10724 0.06703,-0.0436 0.14411,-0.0536 z"
+         id="path5761" />
+    </g>
+  </g>
+</svg>
