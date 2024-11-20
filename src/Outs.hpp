@@ -76,10 +76,11 @@ struct Outs : Module {
 			pregainOutput.clearAudio();
 		}
 		pregainOutput.pushAudio();
+		unsigned int c = 0;
 		for (unsigned int i = 0; i < 2; i++) {
 			for (unsigned int j = 0; j < 4; j++) {
-				outputs[WET_OUTPUTS + (i * 4) + (j * 2)].setVoltage(wetAudio.leftAudio[i][j]);
-				outputs[WET_OUTPUTS + (i * 4) + (j * 2) + 1].setVoltage(wetAudio.rightAudio[i][j]);
+				outputs[WET_OUTPUTS + c++].setVoltage(wetAudio.leftAudio[i][j]);
+				outputs[WET_OUTPUTS + c++].setVoltage(wetAudio.rightAudio[i][j]);
 			}
 		}
 				

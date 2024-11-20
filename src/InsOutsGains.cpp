@@ -37,7 +37,7 @@ void InsOutsGains::process(const ProcessArgs &args) {
 		blinkPhase -= 0.5f;
 		//DEBUG("%i %i %i %i", inChans, lChans, rChans, tsChans);
 		//DEBUG("%d %d %d", pregainOutput.ilChannels, pregainOutput.leftChannels, pregainOutput.rightChannels);
-		//DEBUG("%li soloMe:%i soloTracks:%i soloToRight:%i numModules:%i", id, soloMe, soloTracks, soloToRight, numModules);
+		//DEBUG("%" PRId64 " muteMe: %i soloMe:%i soloTracks:%i soloToRight:%i numModules:%i", id, muteMe, soloMe, soloTracks, soloToRight, numModules);
 		//DEBUG("wetOutput: %f   firstInput: %f", wetOutput.ilAudio[0][3], firstInput.ilAudio[0][3]);
 		//DEBUG("%" PRId64 " numModules:%i", id, numModules);
 		//DEBUG("%" PRId64, id);
@@ -50,9 +50,13 @@ void InsOutsGains::process(const ProcessArgs &args) {
 	sendOutput.setChannelsFromInput(&firstInput);
 
 	firstWithPregain.copyAudio();
-	firstWithSend.gainAudio(ilGains, monoGains);
+	firstWithSend.gainAudio(monoGains);
 
-	returnInput.pullAudio(!muteMe && (soloMe || (soloTracks == 0)));
+//	returnInput.pullAudio(!muteMe && (soloMe || (soloTracks == 0))); //broken, but why
+//	if (!muteMe && (soloMe || (soloTracks == 0))) { returnInput.pullAudio(true); } else { returnInput.pullAudio(false); } //nominal
+//	returnInput.pullAudio((!muteMe && (soloMe || (soloTracks == 0))) ? true : false); //nominal
+	//float pans[4] = {1, 1, 0, 0};
+	returnInput.pullAudio((!muteMe && (soloMe || (soloTracks == 0))) ? true : false, trackPanVals);
 	wetOutput.setChannelsFromInput(&returnInput);
 
 	// set up details for the expander
@@ -64,7 +68,7 @@ void InsOutsGains::process(const ProcessArgs &args) {
 		expMessage* rightSink = (expMessage*)(rightExpander.module->leftExpander.producerMessage); // this is the rightward module's; I write to it and request flip
 		expMessage* rightSource = (expMessage*)(rightExpander.consumerMessage); // this is mine; my rightExpander.producer message is written by the rightward module, which requests flip
 
-		for (unsigned int i = 0; i < 8; i++) {
+		for (unsigned int i = 0; i < 4; i++) {
 			rightSink->pregainAudio[i] = pregainOutput.allAudio[i];
 		}
 		rightSink->pregainChans = pregainOutput.ilChannels;
@@ -96,17 +100,16 @@ void InsOutsGains::process(const ProcessArgs &args) {
 			full[i] += chopped[i] * (1 - amtChop);
 			chopped[i] *= amtChop;
 		}
-		//TODO: interleaved
 		wetOutput.pushAudio();
 	}
 
 	if (expandsLeftward) {
 		expMessage* leftSink = (expMessage*)(leftExpander.module->rightExpander.producerMessage); // this is the left module's; I write to it and request flip
-		for (unsigned int i = 0; i < 8; i++) {
+		for (unsigned int i = 0; i < 4; i++) {
 			leftSink->pregainAudio[i] = pregainOutput.allAudio[i];
 		}
 		leftSink->pregainChans = pregainOutput.ilChannels;
-		for (unsigned int i = 0; i < 8; i++) {
+		for (unsigned int i = 0; i < 4; i++) {
 			leftSink->wetAudio[i] = wetOutput.allAudio[i];
 		}
 		leftSink->wetChans = std::max(wetOutput.ilChannels, returnInput.ilChannels);

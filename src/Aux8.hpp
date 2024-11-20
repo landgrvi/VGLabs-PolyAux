@@ -11,19 +11,20 @@ struct Aux8 : Module {
 	float blinkPhase = 0;
 	
 	simd::float_4 monoGains[2] = { };
-	simd::float_4 ilGains[4] = { };
+	//simd::float_4 ilGains[4] = { };
 
 	unsigned int soloMe = 0;
 	unsigned int soloToRight = 0;
 	unsigned int soloTracks = 0;
 	unsigned int numMe = 0;
 	unsigned int numModules = 0;
-	bool muteMe = false;
+	unsigned int muteMe = 0;
 
 	bool expandsRightward = false;
 	bool expandsLeftward = false;
 	
 	int panLaw = 0;
+	float trackPanVals[4] = { };
 	simd::float_4 trackPanLeft = 0.5f;
 	simd::float_4 trackPanRight = 0.5f;
 	
@@ -49,6 +50,7 @@ struct Aux8 : Module {
 		configInput(TModule::LEFT_RETURN, "Left return");
 		configInput(TModule::RIGHT_RETURN, "Right return");
 		configParam(TModule::RETURN_PAN_PARAM, -1.f, 1.f, 0.f, "Return pan", "%", 0, 100);
+		//configParam(TModule::RETURN_PAN_PARAM, 0.f, M_PI_2, M_PI_4, "Return pan", "%", 0, 100);
 		configParam(TModule::RETURN_GAIN_PARAM, 0.f, M_SQRT2, 1.f, "Return level", " dB", -10, 40);
 		configParam(TModule::SOLO_PARAM, 0.f, 1.f, 0.f, "Solo");
 		configParam(TModule::MUTE_PARAM, 0.f, 1.f, 0.f, "Mute");
@@ -64,25 +66,52 @@ struct Aux8 : Module {
 	} //Aux8 constructor
 	
     void updateGains() {
-		for (unsigned int i = 0; i < 4; i++) {
+		unsigned int c = 0;
+		for (unsigned int i = 0; i < 2; i++) {
 			for (unsigned int j = 0; j < 4; j++) {
-				unsigned int p = (i * 2) + (j / 2); //0 0 1 1 2 2 ...
-				float mute_value = this->params[TModule::MUTE_PARAMS + p].getValue();
-				float gain_value = this->params[TModule::GAIN_PARAMS + p].getValue();
-				ilGains[i][j] = mute_value > 0 ? 0.f : gain_value;
-				if (i < 2) { 
-					unsigned int p = (i * 4) + j; //0 1 2 3 4 ...
-					float mute_value = this->params[TModule::MUTE_PARAMS + p].getValue();
-					float gain_value = this->params[TModule::GAIN_PARAMS + p].getValue();
-					monoGains[i][j] =  mute_value > 0 ? 0.f : gain_value;
-					this->lights[TModule::MUTE_LIGHTS + p].setBrightness(mute_value);
-				}
+				float mute_value = this->params[TModule::MUTE_PARAMS + c].getValue();
+				float gain_value = this->params[TModule::GAIN_PARAMS + c].getValue();
+				this->lights[TModule::MUTE_LIGHTS + c++].setBrightness(mute_value);
+				monoGains[i][j] =  mute_value > 0 ? 0.f : gain_value;
 			}
 		}
 		this->lights[TModule::SOLO_LIGHT].setBrightness(soloMe = this->params[TModule::SOLO_PARAM].getValue());
 		this->lights[TModule::MUTE_LIGHT].setBrightness(muteMe = this->params[TModule::MUTE_PARAM].getValue());
-		this->trackPanLeft = params[TModule::RETURN_PAN_PARAM].getValue();
-		this->trackPanRight = 1.f - this->trackPanLeft;
+		float pv = params[TModule::RETURN_PAN_PARAM].getValue();
+		float theta = (pv + 1) * M_PI_4;  // -1 to 1 -> 0 to M_PI_2
+		//this->trackPanLeft = params[TModule::RETURN_PAN_PARAM].getValue();
+		//this->trackPanRight = 1.f - this->trackPanLeft;
+		trackPanVals[1] = 0.f; //amount of right added to left channel
+		trackPanVals[2] = 0.f; //amount of left added to right channel
+/*
+//additive (MM "true panning")
+		trackPanVals[0] = pv <= 0.f ? 1.f : (1.f - pv) / 1.f; //amount of left in left channel
+		trackPanVals[1] = pv < 0.f ? -pv / 1.f : 0.f; //amount of right added to left channel
+		trackPanVals[2] = pv > 0.f ? pv / 1.f : 0.f; //amount of left added to right channel
+		trackPanVals[3] = pv >= 0.f ? 1.f : (1.f + pv) / 1.f; //amount of right in right channel
+//attenuative (MM "stereo balance linear")
+		trackPanVals[0] = pv <= 0.f ? 1.f : (1.f - pv) / 1.f; //amount of left in left channel
+		trackPanVals[3] = pv >= 0.f ? 1.f : (1.f + pv) / 1.f; //amount of right in right channel
+//side boost (~MM "stereo balance equal power") (same result as constant power below)
+		pv = (params[TModule::RETURN_PAN_PARAM].getValue() + 1) * M_PI_4;
+		trackPanVals[0] = sin(M_PI_2 - pv) * M_SQRT2; //amount of left in left channel
+		trackPanVals[3] = sin(pv) * M_SQRT2; //amount of right in right channel
+// From https://www.cs.cmu.edu/~music/icm-online/readings/panlaws/panlaws.pdf
+		// linear panning (figure 6), but normalised to gain = 1 with knob in centre
+		float norm = 2.f;
+		trackPanVals[0] = (M_PI_2 - theta) * (2 / M_PI) * norm; //amount of left in left channel
+		trackPanVals[3] = theta * (2 / M_PI) * norm; //amount of right in right channel
+		// constant power panning (figure 7), but normalised to gain = 1 with knob in centre
+		float norm = M_SQRT2;
+		trackPanVals[0] = cos(theta) * norm;
+		trackPanVals[3] = sin(theta) * norm;
+*/
+		// compromise 4.5dB panning (figure 8), but normalised to gain = 1 with knob in centre
+		float norm = 1.f / sqrt(M_SQRT2 / 4);
+		trackPanVals[0] = sqrt((M_PI_2 - theta) * (2 / M_PI) * cos(theta)) * norm;
+		trackPanVals[3] = sqrt(theta * (2 / M_PI) * sin(theta)) * norm;
+		
+
 	} //updateGains
 	
 	virtual inline bool calcLeftExpansion() {

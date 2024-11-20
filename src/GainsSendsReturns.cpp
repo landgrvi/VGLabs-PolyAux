@@ -52,7 +52,7 @@ void GainsSendsReturns::process(const ProcessArgs &args) {
 	}
 
 	if (expandsRightward) {
-		for (unsigned int i = 0; i < 8; i++) {
+		for (unsigned int i = 0; i < 4; i++) {
 			rightSink->pregainAudio[i] = pregainAudio.allAudio[i];
 		}
 		rightSink->pregainChans = pregainAudio.ilChannels;
@@ -66,11 +66,11 @@ void GainsSendsReturns::process(const ProcessArgs &args) {
 	}
 
 	sendOutput.setChannelsFromInput(&pregainAudio);
-	pregainWithSend.gainAudio(ilGains, monoGains);
+	pregainWithSend.gainAudio(monoGains);
 
 	//if there's no leftward module, no reason to process return audio or to load wet audio since there's nowhere to send it
 	if (expandsLeftward) {
-		returnInput.pullAudio(!muteMe && (soloMe || (soloTracks == 0)));
+		returnInput.pullAudio((!muteMe && (soloMe || (soloTracks == 0))) ? true : false, trackPanVals); //nominal
 		
 		if (expandsRightward) {
 			wetAudio.setAudio(rightSource->wetAudio);
@@ -80,7 +80,7 @@ void GainsSendsReturns::process(const ProcessArgs &args) {
 			wetAudio.setChannels(returnInput.ilChannels);
 		}
 		returnWithWet.addLevelAudio(params[RETURN_GAIN_PARAM].getValue());
-		for (unsigned int i = 0; i < 8; i++) {
+		for (unsigned int i = 0; i < 4; i++) {
 			leftSink->wetAudio[i] = wetAudio.allAudio[i];
 		}
 		leftSink->wetChans = wetAudio.ilChannels;

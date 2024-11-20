@@ -10,26 +10,23 @@ struct comboAudio {
 	unsigned int ilChannels = 0;
 	unsigned int leftChannels = 0;
 	unsigned int rightChannels = 0;
-	simd::float_4 allAudio[8] = { };
-	simd::float_4* ilAudio = &(allAudio[0]);
-	simd::float_4* leftAudio = &(allAudio[4]);
-	simd::float_4* rightAudio = &(allAudio[6]);
+	simd::float_4 allAudio[4] = { };
+	//simd::float_4* ilAudio = &(allAudio[0]);
+	simd::float_4* leftAudio = &(allAudio[0]);
+	simd::float_4* rightAudio = &(allAudio[2]);
 	bool hasPorts = false;
 	Port* ilPort = nullptr;
 	Port* leftPort = nullptr;
-	Port* rightPort = nullptr; 
-	float* ilAudioPtrs[16] = { };
-
-	comboAudio() {
-		unsigned int c = 0;
-		for (unsigned int i = 0; i < 2; i++) {
-			for (unsigned int j = 0; j < 4; j++) {
-				ilAudioPtrs[c] = &(leftAudio[i][j]);
-				ilAudioPtrs[c + 1] = &(rightAudio[i][j]);
-				c += 2;
-			}
-		}
-	}
+	Port* rightPort = nullptr;
+	// Just in case: 
+	float* ilAudioPtrs[16] = {&(leftAudio[0][0]), &(rightAudio[0][0]),
+		                      &(leftAudio[0][1]), &(rightAudio[0][1]), 
+							  &(leftAudio[0][2]), &(rightAudio[0][2]),		                     
+							  &(leftAudio[0][3]), &(rightAudio[0][3]),		                     
+							  &(leftAudio[1][0]), &(rightAudio[1][0]),		                     
+							  &(leftAudio[1][1]), &(rightAudio[1][1]),		                     
+							  &(leftAudio[1][2]), &(rightAudio[1][2]),		                     
+							  &(leftAudio[1][3]), &(rightAudio[1][3])};
 	
 	void setPorts(Port* interleaved, Port* left, Port* right) {
 		ilPort = interleaved;
@@ -62,7 +59,7 @@ struct comboAudio {
 		ilChannels = 0;
 		leftChannels = 0;
 		rightChannels = 0;
-		for (unsigned int i = 0; i < 8; i++) {
+		for (unsigned int i = 0; i < 4; i++) {
 			allAudio[i] = 0.f;
 		}
 		if (hasPorts) {
@@ -73,15 +70,12 @@ struct comboAudio {
 	} //clearAudio
 	
 	void setAudio(simd::float_4* aa) {
-		for (unsigned int i = 0; i < 8; i++) {
+		for (unsigned int i = 0; i < 4; i++) {
 			allAudio[i] = aa[i];
 		}
 	} //setAudio
 	
-	void setAudio(simd::float_4* ila, simd::float_4* la, simd::float_4* ra) {
-		for (unsigned int i = 0; i < 4; i++) {
-			ilAudio[i] = ila[i];
-		}
+	void setAudio(simd::float_4* la, simd::float_4* ra) {
 		for (unsigned int i = 0; i < 2; i++) {
 			leftAudio[i] = la[i];
 			rightAudio[i] = ra[i];
@@ -89,7 +83,7 @@ struct comboAudio {
 	} //setAudio
 	
 	void reLevelAudio(float level) {
-		for (unsigned int i = 0; i < 8; i++) {
+		for (unsigned int i = 0; i < 4; i++) {
 			allAudio[i] *= simd::pow(level, 2);
 		}
 	} // reLevelAudio
@@ -106,7 +100,6 @@ struct comboAudioIn : comboAudio {
 		leftChannels = std::min(leftPort->getChannels(), 8); //silently drops higher channels - sorry, user!
 		rightChannels = std::min(rightPort->getChannels(), 8);
 		if (ilChannels % 2) ilChannels++;
-		//ilChannels = std::max(std::max(leftChannels * 2, ilChannels), std::max(rightChannels * 2, ilChannels));
 		ilChannels = std::max({leftChannels * 2, rightChannels * 2, ilChannels});
 		leftChannels = rightChannels = ilChannels / 2;
 		//ilPort->setChannels(ilChannels);
@@ -114,44 +107,73 @@ struct comboAudioIn : comboAudio {
 		//rightPort->setChannels(rightChannels);
 	} //updateChannels
 	
-	void pullAudio(unsigned int trackEnabled = 1) {
+	void pullAudio(bool trackEnabled = true) {
 		if (!hasPorts) return;
 		updateChannels(); //now ilChannels == leftChannels (or rightChannels) * 2
-// i:  0       1       2       3
-// j:  0 1 2 3 0 1 2 3 0 1 2 3 0 1 2 3
-// c:  0 1 2 3 4 5 6 7 8 9 101112131415
-// mc: 0   1   2   3   4   5   6   7
-// mi: 0               1
-// mj: 0   1   2   3   0   1   2   3
 		if (trackEnabled) {
-			unsigned int c = 0;
-			unsigned int mc = 0;
-			unsigned int mi = 0;
-			unsigned int mj = 0;
 			float* ilp = ilPort->getVoltages();
 			float* lp = leftPort->getVoltages();
 			float* rp = rightPort->getVoltages();
-			for (unsigned int i = 0; i < 4; i++) {
-				if (i == 2) mi++; // increment mono outer counter at 8th time
-				for (unsigned int j = 0; j < 4; j += 2) {
-					leftAudio[mi][mj] = ilAudio[i][j] = ilp[c++] + lp[mc]; // increment interleaved channel
-					rightAudio[mi][mj++] = ilAudio[i][j + 1] = ilp[c++] + rp[mc++]; // increment interleaved channel, mono channel, mono inner counter
-					if (mj == 4) mj = 0; // adjust mono inner counter back to 0
+			unsigned int c = 0;
+			unsigned int mc = 0;
+// i:  0               1
+// j:  0   1   2   3   0   1   2   3
+// c:  0 1 2 3 4 5 6 7 8 9 101112131415
+// mc: 0   1   2   3   4   5   6   7
+			for (unsigned int i = 0; i < 2; i++) {
+				for (unsigned int j = 0; j < 4; j++) {
+					leftAudio[i][j] = ilp[c++] + lp[mc]; // increment interleaved channel
+					rightAudio[i][j] = ilp[c++] + rp[mc++]; // increment interleaved channel, mono channel
 				}
 			}
 		} else {
-			for (unsigned int i = 0; i < 8; i++) {
+			for (unsigned int i = 0; i < 4; i++) {
 				allAudio[i] = 0.f;
 			}
 		}	
 	} //pullAudio
+
+	void pullAudio(bool trackEnabled, float pans[4]) {
+		if (!hasPorts) return;
+		updateChannels(); //now ilChannels == leftChannels (or rightChannels) * 2
+		if (trackEnabled) {
+			float* ilp = ilPort->getVoltages();
+			float* lp = leftPort->getVoltages();
+			float* rp = rightPort->getVoltages();
+			float amtLeft = pans[0];
+			float amtRightToLeft = pans[1];
+			float amtLeftToRight = pans[2];
+			float amtRight = pans[3];
+			unsigned int c = 0;
+			unsigned int mc = 0;
+// i:  0               1
+// j:  0   1   2   3   0   1   2   3
+// c:  0 1 2 3 4 5 6 7 8 9 101112131415
+// mc: 0   1   2   3   4   5   6   7
+			for (unsigned int i = 0; i < 2; i++) {
+				for (unsigned int j = 0; j < 4; j++) {
+					leftAudio[i][j] = amtLeft * (ilp[c]  + lp[mc]) + amtRightToLeft * (rp[mc] + ilp[c + 1]);
+					c++;  // increment interleaved channel
+					rightAudio[i][j] = amtRight * (ilp[c]  + rp[mc]) + amtLeftToRight * (lp[mc] + ilp[c - 1]);
+					c++;  // increment interleaved channel
+					mc++; // increment mono channel
+				}
+			}
+		} else {
+			for (unsigned int i = 0; i < 4; i++) {
+				allAudio[i] = 0.f;
+			}
+		}	
+	} //pullAudio
+
+
 }; //comboAudioIn
 
 struct comboAudioOut : comboAudio {
 	//we have the member variables and setPorts from comboAudio
 
 template<typename TAudio>
-	void setChannelsFromInput (TAudio* caIn) { //should put in some sort of check that it's a sensible object to have its channels read
+	void setChannelsFromInput (TAudio* caIn) { 
 		ilChannels = caIn->ilChannels;
 		leftChannels = caIn->leftChannels;
 		rightChannels = caIn->rightChannels;
@@ -193,7 +215,7 @@ struct comboAudioLinked {
 	
 	void copyAudio() {
 		if (caIn && caOut) {
-			for (unsigned int i = 0; i < 8; i++) {
+			for (unsigned int i = 0; i < 4; i++) {
 				caOut->allAudio[i] = caIn->allAudio[i];
 			}
 			caOut->pushAudio();
@@ -202,18 +224,15 @@ struct comboAudioLinked {
 	
 	void addAudio() {
 		if (caIn && caOut) {
-			for (unsigned int i = 0; i < 8; i++) {
+			for (unsigned int i = 0; i < 4; i++) {
 				caOut->allAudio[i] += caIn->allAudio[i];
 			}
 			caOut->pushAudio();
 		}
 	} //addAudio
 	
-	void gainAudio(simd::float_4* ilGains, simd::float_4* monoGains) {
+	void gainAudio(simd::float_4* monoGains) {
 		if (caIn && caOut) {
-			for (unsigned int i = 0; i < 4; i++) {
-				caOut->ilAudio[i] = caIn->ilAudio[i] * simd::ifelse(ilGains[i] > 0, simd::pow(ilGains[i], 2), 0);
-			}
 			for (unsigned int i = 0; i < 2; i++) {
 				caOut->leftAudio[i] = caIn->leftAudio[i] * simd::ifelse(monoGains[i] > 0, simd::pow(monoGains[i], 2), 0);
 				caOut->rightAudio[i] = caIn->rightAudio[i] * simd::ifelse(monoGains[i] > 0, simd::pow(monoGains[i], 2), 0);
@@ -224,7 +243,7 @@ struct comboAudioLinked {
 	
 	void levelAudio(float level) {
 		if (caIn && caOut) {
-			for (unsigned int i = 0; i < 8; i++) {
+			for (unsigned int i = 0; i < 4; i++) {
 				caOut->allAudio[i] = caIn->allAudio[i] * simd::pow(level, 2);
 			}
 			caOut->pushAudio();
@@ -233,7 +252,7 @@ struct comboAudioLinked {
 
 	void addLevelAudio(float level) {
 		if (caIn && caOut) {
-			for (unsigned int i = 0; i < 8; i++) {
+			for (unsigned int i = 0; i < 4; i++) {
 				caOut->allAudio[i] += caIn->allAudio[i] * simd::pow(level, 2);
 			}
 			caOut->pushAudio();
@@ -255,7 +274,7 @@ struct comboAudioBlended {
 	void blendAudio(float wetAmount, float level, comboAudioIn* caInExtra = nullptr, float masterLevel = 1.f) {
 		if (caInWet && caInDry && caOut) {
 			float dryAmount = 1.f - wetAmount;
-			for (unsigned int i = 0; i < 8; i++) {
+			for (unsigned int i = 0; i < 4; i++) {
 				caOut->allAudio[i] = ((caInWet->allAudio[i] * simd::pow(level, 2) * wetAmount) + (caInDry->allAudio[i] * dryAmount) + (caInExtra ? caInExtra->allAudio[i] * wetAmount : 0.f)) * simd::pow(masterLevel, 2);
 			}
 			caOut->pushAudio();
@@ -268,7 +287,7 @@ struct comboAudioBlended {
 
  	void addLevelAudio(float level) {
 		if (caInWet && caInDry && caOut) {
-			for (unsigned int i = 0; i < 8; i++) {
+			for (unsigned int i = 0; i < 4; i++) {
 				caOut->allAudio[i] = (caInWet->allAudio[i] * simd::pow(level, 2)) + caInDry->allAudio[i];
 			}
 			caOut->pushAudio();
