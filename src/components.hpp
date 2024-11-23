@@ -29,25 +29,25 @@ struct ChickenHeadKnobIvory : ChickenHeadKnob {
 	}
 };	
 
-template <typename TLight = RedLight>
-struct ClearLightLatch : SvgSwitch {
-    app::ModuleLightWidget* light;
+struct GreenRedLightLatch : SvgSwitch {
+    SmallLight<GreenRedLight>* light;
  
-	ClearLightLatch() {
+	GreenRedLightLatch() {
 		momentary = false;
 		shadow->opacity = 0.0;
-		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/transparent_circle_purplegray.svg")));
+		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/transparent_circle_green.svg")));
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/transparent_circle_red.svg")));
 
-        light = new TLight;
+        light = new SmallLight<GreenRedLight>;
         // Move center of light to center of box
         light->box.pos = box.size.div(2).minus(light->box.size.div(2));
         light->bgColor = color::BLACK_TRANSPARENT;
         light->borderColor = color::BLACK_TRANSPARENT;
+        light->setBrightnesses({0.f, 0.f});
         addChild(light);
 	}
-
-    app::ModuleLightWidget* getLight() {
+	
+    SmallLight<GreenRedLight>* getLight() {
         return light;
     }
 };
@@ -132,6 +132,7 @@ struct SvgSwitchWithHalo : SvgSwitch {
 };
 // End direct copy from MindMeldModular
 
+// Derived from MMM code above:
 void drawRoundedRectHalo(const Widget::DrawArgs &args, Vec boxSize, NVGcolor haloColor);
 
 struct SvgSwitchWithRoundedRectHalo : SvgSwitch {
@@ -178,7 +179,7 @@ struct btnMute : SvgSwitchWithRoundedRectHalo {
 		momentary = false;
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/MuteButtonGrey.svg")));
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/MuteButtonRed.svg")));
-		haloColor = nvgRGB(0xFF, 0x00, 0x00);// this should match the color of fill of the on button
+		haloColor = nvgRGB(0xE9, 0x1D, 0x0E);// this should match the color of fill of the on button
 	}
 
 };
@@ -188,7 +189,7 @@ struct btnSolo : SvgSwitchWithRoundedRectHalo {
 		momentary = false;
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/SoloButtonGrey.svg")));
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/SoloButtonGreen.svg")));
-		haloColor = nvgRGB(0x00, 0xFF, 0x00);// this should match the color of fill of the on button
+		haloColor = nvgRGB(0x41, 0xB6, 0x33);// this should match the color of fill of the on button
 	}
 };
 		

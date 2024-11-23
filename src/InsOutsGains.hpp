@@ -7,8 +7,6 @@ using namespace rack;
 
 struct InsOutsGains : Aux8<InsOutsGains> {
 
-	comboAudioBlended returnAndFirstWithWet;
-	
 	enum ParamId {
 		MASTER_PAN_PARAM,
 		MASTER_GAIN_PARAM,
@@ -45,7 +43,7 @@ struct InsOutsGains : Aux8<InsOutsGains> {
 		OUTPUTS_LEN
 	};
 	enum LightId {
-		ENUMS(MUTE_LIGHTS, 8),
+		ENUMS(MUTE_LIGHTS, 16), // 8 GreenRedLights
 		BLINK_LIGHT,
 		SOLO_LIGHT,
 		MUTE_LIGHT,
@@ -53,26 +51,31 @@ struct InsOutsGains : Aux8<InsOutsGains> {
 		LIGHTS_LEN
 	};
 	
-	simd::float_4 masterPanLeft = 0.5f;
-	simd::float_4 masterPanRight = 0.5f;
+	float masterPanVals[4] = {1.f, 0.f, 0.f, 1.f};
+	float oldMasterPanVal = -2.f; //start out of bounds
+	float oldMasterLevel = -1.f;
+	float oldMute = -1.f;
+	
 	float debugValue1 = -5.f;
 	float debugValue2 = -6.f;
 	
-	comboAudioIn firstInput; // from input ports
-	comboAudioOut pregainOutput; // to right module and output ports
-	comboAudioOut wetOutput; // to output ports
+	comboAudioIn firstInput; // from input ports - does not scale
+	comboAudioOut pregainOutput; // to right module and output ports - does not scale
+	comboAudioOut wetOutput; // to output ports - scales
 
-	comboAudioIn wetInput; // from right module
+	comboAudioIn wetInput; // from right module - already scaled
 	
 	comboAudioLinked<comboAudioIn, comboAudioOut> firstWithPregain; // for making straight copy of firstInput to pregainOutput
 	comboAudioLinked<comboAudioIn, comboAudioOut> firstWithSend; // for applying channel gains/mutes on firstInput to sendOutput
-	comboAudioLinked<comboAudioIn, comboAudioOut> returnWithWet; // for applying track fader on returnInput to wetOutput
+	comboAudioLinked<comboAudioIn, comboAudioOut> returnWithWet; // for applying track fader on returnInput to wetOutput - no, fading/panning now applied on pull & push
 
+	comboAudioBlended returnAndFirstWithWet;
+	
 	InsOutsGains() ;
 	void process(const ProcessArgs &args) override ;
 	inline bool calcLeftExpansion() override ;
-	//void updateGains() ;
-	
-	
-	
+	void updateGains() override ;
+	json_t* dataToJson() override ;
+	void dataFromJson(json_t* rootJ) override ;
+	void onReset(const ResetEvent& e) override ;
 };

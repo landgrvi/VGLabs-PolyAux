@@ -30,7 +30,7 @@ struct GainsSendsReturns : Aux8<GainsSendsReturns> {
 		OUTPUTS_LEN
 	};
 	enum LightId {
-		ENUMS(MUTE_LIGHTS, 8),
+		ENUMS(MUTE_LIGHTS, 16), // 8 GreenRedLights
 		SOLO_LIGHT,
 		MUTE_LIGHT,
 		TEST_LIGHT,

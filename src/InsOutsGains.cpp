@@ -22,15 +22,16 @@ InsOutsGains::InsOutsGains() {
 
 	firstInput.setPorts(&inputs[INTERLEAVED_INPUT], &inputs[LEFT_INPUT], &inputs[RIGHT_INPUT]);
 	wetOutput.setPorts(&outputs[INTERLEAVED_WET_OUTPUT], &outputs[LEFT_WET_OUTPUT], &outputs[RIGHT_WET_OUTPUT]);
+	wetInput.clearAudio();
 
-	returnAndFirstWithWet.setPorts(&returnInput, &firstInput, &wetOutput);
 	firstWithSend.setPorts(&firstInput, &sendOutput);
 	firstWithPregain.setPorts(&firstInput, &pregainOutput);
 	returnWithWet.setPorts(&returnInput, &wetOutput);
-
 }
 
 void InsOutsGains::process(const ProcessArgs &args) {
+	
+	if (((args.frame + this->id) % 64) == 0) updateGains();
 
 	blinkPhase += args.sampleTime;
 	if (blinkPhase >= 0.5f) {
@@ -56,7 +57,7 @@ void InsOutsGains::process(const ProcessArgs &args) {
 //	if (!muteMe && (soloMe || (soloTracks == 0))) { returnInput.pullAudio(true); } else { returnInput.pullAudio(false); } //nominal
 //	returnInput.pullAudio((!muteMe && (soloMe || (soloTracks == 0))) ? true : false); //nominal
 	//float pans[4] = {1, 1, 0, 0};
-	returnInput.pullAudio((!muteMe && (soloMe || (soloTracks == 0))) ? true : false, trackPanVals);
+	returnInput.pullAudio((!muteMe && (soloMe || (soloTracks == 0))) ? true : false);
 	wetOutput.setChannelsFromInput(&returnInput);
 
 	// set up details for the expander
@@ -67,7 +68,7 @@ void InsOutsGains::process(const ProcessArgs &args) {
 			
 		expMessage* rightSink = (expMessage*)(rightExpander.module->leftExpander.producerMessage); // this is the rightward module's; I write to it and request flip
 		expMessage* rightSource = (expMessage*)(rightExpander.consumerMessage); // this is mine; my rightExpander.producer message is written by the rightward module, which requests flip
-
+		
 		for (unsigned int i = 0; i < 4; i++) {
 			rightSink->pregainAudio[i] = pregainOutput.allAudio[i];
 		}
@@ -75,34 +76,27 @@ void InsOutsGains::process(const ProcessArgs &args) {
 		wetInput.setAudio(rightSource->wetAudio);
 		wetInput.setChannels(rightSource->wetChans);
 		wetOutput.setChannels(std::max(wetInput.ilChannels, wetOutput.ilChannels), std::max(wetInput.leftChannels, wetOutput.leftChannels), std::max(wetInput.rightChannels, wetOutput.rightChannels));
-		returnAndFirstWithWet.blendAudio(params[DRYPLUS_PARAM].getValue(), params[RETURN_GAIN_PARAM].getValue(), &wetInput, params[MASTER_GAIN_PARAM].getValue() * (1.f - params[MASTER_MUTE_PARAM].getValue()) );
+		returnAndFirstWithWet.setPorts(&returnInput, &firstInput, &wetOutput, &wetInput);
+		returnAndFirstWithWet.blendAudio(params[DRYPLUS_PARAM].getValue());
+		//returnAndFirstWithWet.blendAudio(params[DRYPLUS_PARAM].getValue(), params[RETURN_GAIN_PARAM].getValue(), &wetInput, params[MASTER_GAIN_PARAM].getValue() * (1.f - params[MASTER_MUTE_PARAM].getValue()), masterPanVals );
 
 		soloToRight = params[SOLO_PARAM].getValue();
 		numMe = 1;
 		rightSink->soloSoFar = soloToRight;
 		rightSink->numModulesSoFar = numMe;
+		rightSink->masterPanMode = masterPanMode;
 		soloTracks = rightSource->soloTotal;
 		numModules = rightSource->numModulesTotal;
 		
 		rightExpander.module->leftExpander.messageFlipRequested = true; // request rightward module to flip its leftExpander, as I've now written to its producer
 	} else {
-		returnAndFirstWithWet.blendAudio(params[DRYPLUS_PARAM].getValue(), params[RETURN_GAIN_PARAM].getValue(), params[MASTER_GAIN_PARAM].getValue() * (1.f - params[MASTER_MUTE_PARAM].getValue()));
+		returnAndFirstWithWet.setPorts(&returnInput, &firstInput, &wetOutput);
+		returnAndFirstWithWet.blendAudio(params[DRYPLUS_PARAM].getValue());
+		//returnAndFirstWithWet.blendAudio(params[DRYPLUS_PARAM].getValue(), params[RETURN_GAIN_PARAM].getValue(), params[MASTER_GAIN_PARAM].getValue() * (1.f - params[MASTER_MUTE_PARAM].getValue()), masterPanVals);
 		soloTracks = params[SOLO_PARAM].getValue();
 		numModules = 1;
 	}
 	
-	float panVal = params[MASTER_PAN_PARAM].getValue();
-	simd::float_4* full = panVal != 0 ? (panVal < 0 ? wetOutput.leftAudio : wetOutput.rightAudio) : nullptr;
-	simd::float_4* chopped = panVal != 0 ? (panVal > 0 ? wetOutput.leftAudio : wetOutput.rightAudio) : nullptr;
-	simd::float_4 amtChop = 1.f - abs(panVal);
-	if (full && chopped) {
-		for (unsigned int i = 0; i < 2; i++) {
-			full[i] += chopped[i] * (1 - amtChop);
-			chopped[i] *= amtChop;
-		}
-		wetOutput.pushAudio();
-	}
-
 	if (expandsLeftward) {
 		expMessage* leftSink = (expMessage*)(leftExpander.module->rightExpander.producerMessage); // this is the left module's; I write to it and request flip
 		for (unsigned int i = 0; i < 4; i++) {
@@ -117,9 +111,53 @@ void InsOutsGains::process(const ProcessArgs &args) {
 	}
 } //process
 
+void InsOutsGains::updateGains() {
+	Aux8::updateGains();
+	bool changed = false;
+	float pv = params[MASTER_PAN_PARAM].getValue();
+	if (pv != oldMasterPanVal || masterPanMode != oldMasterPanMode) {
+		changed = true;
+		oldMasterPanVal = pv;
+		oldMasterPanMode = masterPanMode;
+		setPanVals(masterPanVals, pv, masterPanMode);
+	}
+	float ml = params[MASTER_GAIN_PARAM].getValue();
+	float mute = params[MASTER_MUTE_PARAM].getValue();
+	if (ml != oldMasterLevel || mute != oldMute) {
+		changed = true;
+		oldMasterLevel = ml;
+		oldMute = mute;
+	}
+	if (changed) {
+		wetOutput.setScaling(masterPanVals, ml * (1.f - mute));
+	}
+}
+
 bool InsOutsGains::calcLeftExpansion() {
 	return leftExpander.module && leftExpander.module->model == modelOuts;
 }
+
+json_t* InsOutsGains::dataToJson() {
+	json_t* rootJ = json_object();
+	json_object_set_new(rootJ, "returnPanMode", json_integer(returnPanMode));
+	json_object_set_new(rootJ, "masterPanMode", json_integer(masterPanMode));
+	return rootJ;
+}
+
+void InsOutsGains::dataFromJson(json_t* rootJ) {
+	json_t* returnPanModeJ = json_object_get(rootJ, "returnPanMode");
+	if (returnPanModeJ)
+		returnPanMode = json_integer_value(returnPanModeJ);
+	json_t* masterPanModeJ = json_object_get(rootJ, "masterPanMode");
+	if (masterPanModeJ)
+		masterPanMode = json_integer_value(masterPanModeJ);
+}
+
+void InsOutsGains::onReset(const ResetEvent& e) {
+	masterPanMode = 3;
+	Aux8::onReset(e);
+}	
+
 		
 struct InsOutsGainsWidget : Aux8Widget<InsOutsGains> {
 
@@ -160,6 +198,14 @@ struct InsOutsGainsWidget : Aux8Widget<InsOutsGains> {
 		addChild(labelTotal);
 */
 	}
+
+	void appendContextMenu(Menu* menu) override {
+		InsOutsGains* module = getModule<InsOutsGains>();
+		menu->addChild(new MenuSeparator);
+		menu->addChild(createIndexPtrSubmenuItem("Master Pan Mode", {"True Pan (L + R)", "Linear Attenuation","6dB Boost (linear)", "4.5dB Boost (compromise, default)", "3dB boost (constant power)"}, &module->masterPanMode));
+		Aux8Widget<InsOutsGains>::appendContextMenu(menu);
+	}
+	
 	
 	void step() override {
 		if (module) {

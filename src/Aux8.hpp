@@ -11,7 +11,9 @@ struct Aux8 : Module {
 	float blinkPhase = 0;
 	
 	simd::float_4 monoGains[2] = { };
-	//simd::float_4 ilGains[4] = { };
+	float oldMuteVals[8] = {-2.f, -2.f, -2.f, -2.f, -2.f, -2.f, -2.f, -2.f};
+	float oldGainVals[8] = {-2.f, -2.f, -2.f, -2.f, -2.f, -2.f, -2.f, -2.f};
+	float oldReturnPanVal = -2.f;
 
 	unsigned int soloMe = 0;
 	unsigned int soloToRight = 0;
@@ -23,10 +25,12 @@ struct Aux8 : Module {
 	bool expandsRightward = false;
 	bool expandsLeftward = false;
 	
-	int panLaw = 0;
+	unsigned int returnPanMode = 0;
+	unsigned int oldReturnPanMode = 8; // out of range to force initial update
+	unsigned int masterPanMode = 3;
+	unsigned int oldMasterPanMode = 8; // out of range to force initial update
 	float trackPanVals[4] = { };
-	simd::float_4 trackPanLeft = 0.5f;
-	simd::float_4 trackPanRight = 0.5f;
+	float oldReturnLevel = -1.f;
 	
 	comboAudioOut sendOutput; // to effect
 	comboAudioIn returnInput; // from effect 
@@ -65,53 +69,93 @@ struct Aux8 : Module {
 
 	} //Aux8 constructor
 	
-    void updateGains() {
-		unsigned int c = 0;
-		for (unsigned int i = 0; i < 2; i++) {
-			for (unsigned int j = 0; j < 4; j++) {
-				float mute_value = this->params[TModule::MUTE_PARAMS + c].getValue();
-				float gain_value = this->params[TModule::GAIN_PARAMS + c].getValue();
-				this->lights[TModule::MUTE_LIGHTS + c++].setBrightness(mute_value);
-				monoGains[i][j] =  mute_value > 0 ? 0.f : gain_value;
+	//This is really a helper, should probably go in some other file
+	virtual void setPanVals(float* panVals, float pv, unsigned int panMode) {
+		float theta = (pv + 1) * M_PI_4;  // -1 to 1 -> 0 to M_PI_2
+		float norm = 1.f;
+		switch (panMode) {
+			case 0: //additive (MM "true panning")
+				panVals[0] = pv <= 0.f ? 1.f : (1.f - pv) / 1.f; //amount of left in left channel
+				panVals[1] = pv < 0.f ? -pv / 1.f : 0.f; //amount of right added to left channel
+				panVals[2] = pv > 0.f ? pv / 1.f : 0.f; //amount of left added to right channel
+				panVals[3] = pv >= 0.f ? 1.f : (1.f + pv) / 1.f; //amount of right in right channel
+				break;
+			case 1: //attenuative (MM "stereo balance linear")
+				panVals[0] = pv <= 0.f ? 1.f : (1.f - pv) / 1.f; 
+				panVals[1] = 0.f;
+				panVals[2] = 0.f;
+				panVals[3] = pv >= 0.f ? 1.f : (1.f + pv) / 1.f; 
+				break;
+		// From https://www.cs.cmu.edu/~music/icm-online/readings/panlaws/panlaws.pdf
+			case 2: // linear panning (figure 6), normalised to gain = 1 with knob in centre
+				norm = 2.f;
+				panVals[0] = (M_PI_2 - theta) * (2 / M_PI) * norm; 
+				panVals[1] = 0.f;
+				panVals[2] = 0.f;
+				panVals[3] = theta * (2 / M_PI) * norm; 
+				break;
+			case 3: // compromise 4.5dB panning (figure 8), normalised to gain = 1 with knob in centre
+				norm = 1.f / sqrt(M_SQRT2 / 4);
+				panVals[0] = sqrt((M_PI_2 - theta) * (2 / M_PI) * cos(theta)) * norm;
+				panVals[1] = 0.f;
+				panVals[2] = 0.f;
+				panVals[3] = sqrt(theta * (2 / M_PI) * sin(theta)) * norm;
+				break;
+			case 4: // constant power panning (figure 7), normalised to gain = 1 with knob in centre
+				norm = M_SQRT2;
+				panVals[0] = cos(theta) * norm;
+				panVals[1] = 0.f;
+				panVals[2] = 0.f;
+				panVals[3] = sin(theta) * norm;
+				break;
+			default: // we shouldn't get here
+				panVals[0] = panVals[1] = panVals[2] = panVals[3] = 0.f;
+		}
+	}
+
+    virtual void updateGains() {
+
+		bool changed = false;
+		for (unsigned int i = 0; i < 8; i++) {
+			if (params[TModule::MUTE_PARAMS + i].getValue() != oldMuteVals[i]) {
+				changed = true;
+				break;
+			}
+			if (params[TModule::GAIN_PARAMS + i].getValue() != oldGainVals[i]) {
+				changed = true;
+				break;
 			}
 		}
-		this->lights[TModule::SOLO_LIGHT].setBrightness(soloMe = this->params[TModule::SOLO_PARAM].getValue());
-		this->lights[TModule::MUTE_LIGHT].setBrightness(muteMe = this->params[TModule::MUTE_PARAM].getValue());
-		float pv = params[TModule::RETURN_PAN_PARAM].getValue();
-		float theta = (pv + 1) * M_PI_4;  // -1 to 1 -> 0 to M_PI_2
-		//this->trackPanLeft = params[TModule::RETURN_PAN_PARAM].getValue();
-		//this->trackPanRight = 1.f - this->trackPanLeft;
-		trackPanVals[1] = 0.f; //amount of right added to left channel
-		trackPanVals[2] = 0.f; //amount of left added to right channel
-/*
-//additive (MM "true panning")
-		trackPanVals[0] = pv <= 0.f ? 1.f : (1.f - pv) / 1.f; //amount of left in left channel
-		trackPanVals[1] = pv < 0.f ? -pv / 1.f : 0.f; //amount of right added to left channel
-		trackPanVals[2] = pv > 0.f ? pv / 1.f : 0.f; //amount of left added to right channel
-		trackPanVals[3] = pv >= 0.f ? 1.f : (1.f + pv) / 1.f; //amount of right in right channel
-//attenuative (MM "stereo balance linear")
-		trackPanVals[0] = pv <= 0.f ? 1.f : (1.f - pv) / 1.f; //amount of left in left channel
-		trackPanVals[3] = pv >= 0.f ? 1.f : (1.f + pv) / 1.f; //amount of right in right channel
-//side boost (~MM "stereo balance equal power") (same result as constant power below)
-		pv = (params[TModule::RETURN_PAN_PARAM].getValue() + 1) * M_PI_4;
-		trackPanVals[0] = sin(M_PI_2 - pv) * M_SQRT2; //amount of left in left channel
-		trackPanVals[3] = sin(pv) * M_SQRT2; //amount of right in right channel
-// From https://www.cs.cmu.edu/~music/icm-online/readings/panlaws/panlaws.pdf
-		// linear panning (figure 6), but normalised to gain = 1 with knob in centre
-		float norm = 2.f;
-		trackPanVals[0] = (M_PI_2 - theta) * (2 / M_PI) * norm; //amount of left in left channel
-		trackPanVals[3] = theta * (2 / M_PI) * norm; //amount of right in right channel
-		// constant power panning (figure 7), but normalised to gain = 1 with knob in centre
-		float norm = M_SQRT2;
-		trackPanVals[0] = cos(theta) * norm;
-		trackPanVals[3] = sin(theta) * norm;
-*/
-		// compromise 4.5dB panning (figure 8), but normalised to gain = 1 with knob in centre
-		float norm = 1.f / sqrt(M_SQRT2 / 4);
-		trackPanVals[0] = sqrt((M_PI_2 - theta) * (2 / M_PI) * cos(theta)) * norm;
-		trackPanVals[3] = sqrt(theta * (2 / M_PI) * sin(theta)) * norm;
-		
+		if (changed) {
+			unsigned int c = 0;
+			for (unsigned int i = 0; i < 2; i++) {
+				for (unsigned int j = 0; j < 4; j++) {
+					oldMuteVals[c] = params[TModule::MUTE_PARAMS + c].getValue();
+					lights[TModule::MUTE_LIGHTS + (c * 2)].setBrightness(1 - oldMuteVals[c]);
+					lights[TModule::MUTE_LIGHTS + (c * 2) + 1].setBrightness(oldMuteVals[c]);
+					oldGainVals[c] = params[TModule::GAIN_PARAMS + c].getValue();
+					monoGains[i][j] =  oldMuteVals[c] > 0 ? 0.f : oldGainVals[c];
+					c++;
+				}
+			}
+		}
 
+		float pv = params[TModule::RETURN_PAN_PARAM].getValue();
+		if (pv != oldReturnPanVal || returnPanMode != oldReturnPanMode || (returnPanMode == 0 && masterPanMode != oldMasterPanMode)) {
+			changed = true;
+			oldReturnPanVal = pv;
+			oldReturnPanMode = returnPanMode;
+			oldMasterPanMode = masterPanMode;
+			setPanVals(trackPanVals, pv, (returnPanMode == 0 ? masterPanMode : returnPanMode - 1));
+		}
+		float rl = params[TModule::RETURN_GAIN_PARAM].getValue();
+		if (rl != oldReturnLevel) {
+			changed = true;
+			oldReturnLevel = rl;
+		}
+		if (changed) {
+			returnInput.setScaling(trackPanVals, rl);
+		}
 	} //updateGains
 	
 	virtual inline bool calcLeftExpansion() {
@@ -124,15 +168,20 @@ struct Aux8 : Module {
 
 	json_t* dataToJson() override {
 		json_t* rootJ = json_object();
-		json_object_set_new(rootJ, "panLaw", json_integer(panLaw));
+		json_object_set_new(rootJ, "returnPanMode", json_integer(returnPanMode));
 		return rootJ;
 	}
 
 	void dataFromJson(json_t* rootJ) override {
-		json_t* panLawJ = json_object_get(rootJ, "panLaw");
-		if (panLawJ)
-			panLaw = json_integer_value(panLawJ);
+		json_t* returnPanModeJ = json_object_get(rootJ, "returnPanMode");
+		if (returnPanModeJ)
+			returnPanMode = json_integer_value(returnPanModeJ);
 	}
+
+	void onReset(const ResetEvent& e) override {
+		Module::onReset(e);
+		returnPanMode = 0;
+	}	
 	
 }; // Aux8	
 
@@ -152,10 +201,10 @@ struct Aux8Widget : ModuleWidget {
 		xpos = box.pos.x + box.size.x - 66;
 		for (unsigned int i = 0; i < 8; i++) {
 			addParam(createParamCentered<ChickenHeadKnobIvory>(Vec(xpos, mm2px(12+(15*i))), module, TModule::GAIN_PARAMS + i));
-			addParam(createLightParamCentered<ClearLightLatch<SmallLight<RedLight>>>(Vec(xpos, mm2px(12+(15*i))), module, TModule::MUTE_PARAMS + i, TModule::MUTE_LIGHTS + i));
+			addParam(createLightParamCentered<GreenRedLightLatch>(Vec(xpos, mm2px(12+(15*i))), module, TModule::MUTE_PARAMS + i, TModule::MUTE_LIGHTS + (i * 2)));
 		}
 		
-		// Last column: Sends & Returns (also wants fader, mute, solo, pan(?), vu meters?? a la mindmeld auxpander)
+		// Last column: Sends & Returns
 		xpos = box.pos.x + box.size.x - 23.5;
 		addOutput(createOutputCentered<WhiteRedPJ301MPort>(Vec(xpos, box.pos.y + mm2px(12)), module, TModule::INTERLEAVED_SEND));
 		addOutput(createOutputCentered<WhitePJ301MPort>(Vec(xpos, box.pos.y + mm2px(21)), module, TModule::LEFT_SEND));
@@ -167,8 +216,6 @@ struct Aux8Widget : ModuleWidget {
 
 		addParam(createParamCentered<ChickenHeadKnobIvory>(Vec(xpos, mm2px(12+(15*4))), module, TModule::RETURN_PAN_PARAM));
 		addParam(createParamCentered<VCVSlider>(Vec(xpos, box.pos.y + mm2px(93)), module, TModule::RETURN_GAIN_PARAM));
-		//addParam(createLightParamCentered<VCVLightBezelLatch<MediumLight<GreenLight>>>(Vec(xpos, box.pos.y + mm2px(105)), module, TModule::SOLO_PARAM, TModule::SOLO_LIGHT));
-		//addParam(createLightParamCentered<VCVLightBezelLatch<MediumLight<RedLight>>>(Vec(xpos, box.pos.y + mm2px(114)), module, TModule::MUTE_PARAM, TModule::MUTE_LIGHT));
 		addParam(createParamCentered<btnMute>(Vec(xpos, box.pos.y + mm2px(110)), module, TModule::MUTE_PARAM));
 		addParam(createParamCentered<btnSolo>(Vec(xpos, box.pos.y + mm2px(116)), module, TModule::SOLO_PARAM));
 	}
@@ -190,8 +237,8 @@ struct Aux8Widget : ModuleWidget {
 	
 	void appendContextMenu(Menu* menu) override {
 		TModule* module = getModule<TModule>();
-		menu->addChild(new MenuSeparator);
-		menu->addChild(createIndexPtrSubmenuItem("Pan law", {"-6 dB (linear)", "-3 dB"}, &module->panLaw));
+		if (module->model != modelInsOutsGains) menu->addChild(new MenuSeparator);
+		menu->addChild(createIndexPtrSubmenuItem("Return Pan Mode", {"Use Master (default)", "True Pan (L + R)", "Linear Attenuation","6dB Boost (linear)", "4.5dB Boost (compromise)", "3dB boost (constant power)"}, &module->returnPanMode));
 	}
 	
 	void step() override {
@@ -207,8 +254,8 @@ struct Aux8Widget : ModuleWidget {
 				SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 				svgPanel->fb->dirty = true;
 			}
-
-			module->updateGains();
+			module->lights[TModule::SOLO_LIGHT].setBrightness(module->soloMe = module->params[TModule::SOLO_PARAM].getValue());
+			module->lights[TModule::MUTE_LIGHT].setBrightness(module->muteMe = module->params[TModule::MUTE_PARAM].getValue());
 		}
 		ModuleWidget::step();
 	}

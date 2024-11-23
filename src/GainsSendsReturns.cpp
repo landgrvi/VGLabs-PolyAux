@@ -10,6 +10,8 @@ GainsSendsReturns::GainsSendsReturns() {
 
 void GainsSendsReturns::process(const ProcessArgs &args) {
 	
+	if (((args.frame + this->id) % 64) == 0) updateGains();
+	
 	debugValue = 0.f;
 
 	expandsLeftward = leftExpander.module && (leftExpander.module->model == modelInsOutsGains || leftExpander.module->model == modelGainsSendsReturns);
@@ -45,10 +47,12 @@ void GainsSendsReturns::process(const ProcessArgs &args) {
 		pregainAudio.setChannels(leftSource->pregainChans);
 		soloToRight = leftSource->soloSoFar + params[SOLO_PARAM].getValue();
 		numMe = leftSource->numModulesSoFar + 1;
+		masterPanMode = leftSource->masterPanMode;
 	} else { // I'm the leftmost. Don't keep old crap!
 		pregainAudio.clearAudio(); 
 		soloToRight = params[SOLO_PARAM].getValue();
 		numMe = 1;
+		masterPanMode = 3;
 	}
 
 	if (expandsRightward) {
@@ -58,6 +62,7 @@ void GainsSendsReturns::process(const ProcessArgs &args) {
 		rightSink->pregainChans = pregainAudio.ilChannels;
 		rightSink->soloSoFar = soloToRight;
 		rightSink->numModulesSoFar = numMe;
+		rightSink->masterPanMode = masterPanMode;
 		soloTracks = rightSource->soloTotal; // total from rightmost module
 		numModules = rightSource->numModulesTotal; // total from rightmost module
 	} else { // I'm the rightmost. Close the loop!
@@ -70,7 +75,7 @@ void GainsSendsReturns::process(const ProcessArgs &args) {
 
 	//if there's no leftward module, no reason to process return audio or to load wet audio since there's nowhere to send it
 	if (expandsLeftward) {
-		returnInput.pullAudio((!muteMe && (soloMe || (soloTracks == 0))) ? true : false, trackPanVals); //nominal
+		returnInput.pullAudio((!muteMe && (soloMe || (soloTracks == 0))) ? true : false);
 		
 		if (expandsRightward) {
 			wetAudio.setAudio(rightSource->wetAudio);
@@ -79,7 +84,7 @@ void GainsSendsReturns::process(const ProcessArgs &args) {
 			wetAudio.clearAudio();
 			wetAudio.setChannels(returnInput.ilChannels);
 		}
-		returnWithWet.addLevelAudio(params[RETURN_GAIN_PARAM].getValue());
+		returnWithWet.addAudio();
 		for (unsigned int i = 0; i < 4; i++) {
 			leftSink->wetAudio[i] = wetAudio.allAudio[i];
 		}

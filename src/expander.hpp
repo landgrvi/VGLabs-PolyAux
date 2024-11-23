@@ -6,6 +6,7 @@ struct expMessage { // contains both directions
 	unsigned int pregainChans = 0;
 	unsigned int soloSoFar = 0;
 	unsigned int numModulesSoFar = 0;
+	unsigned int masterPanMode = 3;
 // These things travel leftwards
 	simd::float_4 wetAudio[4] = { };
 	unsigned int wetChans = 0;
