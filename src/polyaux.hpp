@@ -158,58 +158,45 @@ struct comboAudioIn : comboAudio {
 struct comboAudioOut : comboAudio {
 	//we have the member variables and setPorts from comboAudio
 
-template<typename TAudio>
+	template<typename TAudio>
 	void setChannelsFromInput (TAudio* caIn) { 
 		ilChannels = caIn->ilChannels;
 		leftChannels = caIn->leftChannels;
 		rightChannels = caIn->rightChannels;
-		if (!hasPorts) return;
-		ilPort->setChannels(ilChannels);
-		leftPort->setChannels(leftChannels);
-		rightPort->setChannels(rightChannels);
+		if (hasPorts) {
+			ilPort->setChannels(ilChannels);
+			leftPort->setChannels(leftChannels);
+			rightPort->setChannels(rightChannels);
+		}
 	} //setChannelsFromInput
 
 	void pushAudio() override {
-		if (!hasPorts) return;
-		unsigned int c = 0;
-		unsigned int mc = 0;
-		float* lp = leftPort->getVoltages();
-		float* rp = rightPort->getVoltages();
-		if (scales) {
-			for (unsigned int i = 0; i < 2; i++) {
-				leftPort->setVoltageSimd(leftAudio[i] * scalingVals[0] + rightAudio[i] * scalingVals[1], i*4);
-				rightPort->setVoltageSimd(rightAudio[i] * scalingVals[3] + leftAudio[i] * scalingVals[2], i*4);
-				for (unsigned int j = 0; j < 4; j++) {
-					ilPort->setVoltage(lp[mc], c++);
-					ilPort->setVoltage(rp[mc++], c++);
+		if (hasPorts) {
+			unsigned int c = 0;
+			unsigned int mc = 0;
+			float* lp = leftPort->getVoltages();
+			float* rp = rightPort->getVoltages();
+			if (scales) {
+				for (unsigned int i = 0; i < 2; i++) {
+					leftPort->setVoltageSimd(leftAudio[i] * scalingVals[0] + rightAudio[i] * scalingVals[1], i*4);
+					rightPort->setVoltageSimd(rightAudio[i] * scalingVals[3] + leftAudio[i] * scalingVals[2], i*4);
+					for (unsigned int j = 0; j < 4; j++) {
+						ilPort->setVoltage(lp[mc], c++);
+						ilPort->setVoltage(rp[mc++], c++);
+					}
 				}
-			}
-		} else {
-			for (unsigned int i = 0; i < 2; i++) {
-				leftPort->setVoltageSimd(leftAudio[i], i*4);
-				rightPort->setVoltageSimd(rightAudio[i], i*4);
-				for (unsigned int j = 0; j < 4; j++) {
-					ilPort->setVoltage(lp[mc], c++);
-					ilPort->setVoltage(rp[mc++], c++);
+			} else {
+				for (unsigned int i = 0; i < 2; i++) {
+					leftPort->setVoltageSimd(leftAudio[i], i*4);
+					rightPort->setVoltageSimd(rightAudio[i], i*4);
+					for (unsigned int j = 0; j < 4; j++) {
+						ilPort->setVoltage(lp[mc], c++);
+						ilPort->setVoltage(rp[mc++], c++);
+					}
 				}
 			}
 		}
 	} //pushAudio	
-
-/*	
-	void pushAudio(float pans[4]) {
-		if (!hasPorts) return;
-		unsigned int c = 0;
-		for (unsigned int i = 0; i < 2; i++) {
-			leftPort->setVoltageSimd(leftAudio[i] * pans[0] + rightAudio[i] * pans[1], i*4);
-			rightPort->setVoltageSimd(rightAudio[i] * pans[3] + leftAudio[i] * pans[2], i*4);
-			for (unsigned int j = 0; j < 4; j++) {
-				ilPort->setVoltage(leftAudio[i][j] * pans[0] + rightAudio[i][j] * pans[1], c++);
-				ilPort->setVoltage(rightAudio[i][j] * pans[3] + leftAudio[i][j] * pans[2], c++);
-			}
-		}
-	} //pushAudio
-*/
 	
 }; //comboAudioOut
 
@@ -251,25 +238,6 @@ struct comboAudioLinked {
 		}
 	} //gainAudio (separate gains)
 	
-/*  We shouldn't need these as scaling is applied either at push or pull .....?
-	void levelAudio(float level) {
-		if (caIn && caOut) {
-			for (unsigned int i = 0; i < 4; i++) {
-				caOut->allAudio[i] = caIn->allAudio[i] * simd::pow(level, 2);
-			}
-			caOut->pushAudio();
-		}
-	} //levelAudio (single gain, used for level)
-
-	void addLevelAudio(float level) {
-		if (caIn && caOut) {
-			for (unsigned int i = 0; i < 4; i++) {
-				caOut->allAudio[i] += caIn->allAudio[i] * simd::pow(level, 2);
-			}
-			caOut->pushAudio();
-		}
-	} // addLevelAudio
-*/
 }; //comboAudioLinked
 
 struct comboAudioBlended {
@@ -288,41 +256,18 @@ struct comboAudioBlended {
 	void blendAudio(float wetAmount) {
 		if (caInWet && caInDry && caOut) {
 			float dryAmount = 1.f - wetAmount;
-			for (unsigned int i = 0; i < 4; i++) {
-				caOut->allAudio[i] = (caInDry->allAudio[i] * dryAmount) + ((caInWet->allAudio[i] + (caInExtra ? caInExtra->allAudio[i] : 0.f)) * wetAmount);
+			if (caInExtra) {
+				for (unsigned int i = 0; i < 4; i++) {
+					caOut->allAudio[i] = (caInDry->allAudio[i] * dryAmount) + ((caInWet->allAudio[i] + caInExtra->allAudio[i]) * wetAmount);
+				}
+			} else {
+				for (unsigned int i = 0; i < 4; i++) {
+					caOut->allAudio[i] = (caInDry->allAudio[i] * dryAmount) + (caInWet->allAudio[i] * wetAmount);
+				}
 			}
 			caOut->pushAudio();
 		}
 	} //blendAudio
 
-/*
-	void blendAudio(float wetAmount, float level, comboAudioIn* caInExtra, float masterLevel, float pans[4]) {
-		if (caInWet && caInDry && caOut) {
-			float dryAmount = 1.f - wetAmount;
-			for (unsigned int i = 0; i < 4; i++) {
-				caOut->allAudio[i] = ((caInWet->allAudio[i] * simd::pow(level, 2) * wetAmount) + (caInDry->allAudio[i] * dryAmount) + (caInExtra ? caInExtra->allAudio[i] * wetAmount : 0.f)) * simd::pow(masterLevel, 2);
-			}
-			caOut->pushAudio(pans);
-		}
-	} //blendAudio
-	
-	void blendAudio(float wetAmount, float level, float masterLevel = 1.f) {
-		float pans[4] = {1.f, 0.f, 0.f, 1.f};
-		blendAudio(wetAmount, level, nullptr, masterLevel, pans);
-	}
-
-	void blendAudio(float wetAmount, float level, float masterLevel, float pans[4]) {
-		blendAudio(wetAmount, level, nullptr, masterLevel, pans);
-	}
-
- 	void addLevelAudio(float level) {
-		if (caInWet && caInDry && caOut) {
-			for (unsigned int i = 0; i < 4; i++) {
-				caOut->allAudio[i] = (caInWet->allAudio[i] * simd::pow(level, 2)) + caInDry->allAudio[i];
-			}
-			caOut->pushAudio();
-		}
-	} // addLevelAudio
-*/
 }; //comboAudioBlended
 

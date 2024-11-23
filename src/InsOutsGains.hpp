@@ -67,7 +67,7 @@ struct InsOutsGains : Aux8<InsOutsGains> {
 	
 	comboAudioLinked<comboAudioIn, comboAudioOut> firstWithPregain; // for making straight copy of firstInput to pregainOutput
 	comboAudioLinked<comboAudioIn, comboAudioOut> firstWithSend; // for applying channel gains/mutes on firstInput to sendOutput
-	comboAudioLinked<comboAudioIn, comboAudioOut> returnWithWet; // for applying track fader on returnInput to wetOutput - no, fading/panning now applied on pull & push
+	comboAudioLinked<comboAudioIn, comboAudioOut> returnWithWet; // for adding returnInput to wetOutput
 
 	comboAudioBlended returnAndFirstWithWet;
 	

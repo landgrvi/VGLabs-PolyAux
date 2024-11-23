@@ -43,7 +43,6 @@ struct GreenRedLightLatch : SvgSwitch {
         light->box.pos = box.size.div(2).minus(light->box.size.div(2));
         light->bgColor = color::BLACK_TRANSPARENT;
         light->borderColor = color::BLACK_TRANSPARENT;
-        light->setBrightnesses({0.f, 0.f});
         addChild(light);
 	}
 	

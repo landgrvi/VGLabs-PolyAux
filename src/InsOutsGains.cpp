@@ -202,7 +202,7 @@ struct InsOutsGainsWidget : Aux8Widget<InsOutsGains> {
 	void appendContextMenu(Menu* menu) override {
 		InsOutsGains* module = getModule<InsOutsGains>();
 		menu->addChild(new MenuSeparator);
-		menu->addChild(createIndexPtrSubmenuItem("Master Pan Mode", {"True Pan (L + R)", "Linear Attenuation","6dB Boost (linear)", "4.5dB Boost (compromise, default)", "3dB boost (constant power)"}, &module->masterPanMode));
+		menu->addChild(createIndexPtrSubmenuItem("Master Pan Mode", {"True Pan (L + R)", "Linear Attenuation", "3dB boost (constant power)", "4.5dB Boost (compromise, default)", "6dB Boost (linear)"}, &module->masterPanMode));
 		Aux8Widget<InsOutsGains>::appendContextMenu(menu);
 	}
 	

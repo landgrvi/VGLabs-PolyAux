@@ -87,12 +87,12 @@ struct Aux8 : Module {
 				panVals[3] = pv >= 0.f ? 1.f : (1.f + pv) / 1.f; 
 				break;
 		// From https://www.cs.cmu.edu/~music/icm-online/readings/panlaws/panlaws.pdf
-			case 2: // linear panning (figure 6), normalised to gain = 1 with knob in centre
-				norm = 2.f;
-				panVals[0] = (M_PI_2 - theta) * (2 / M_PI) * norm; 
+			case 2: // constant power panning (figure 7), normalised to gain = 1 with knob in centre
+				norm = M_SQRT2;
+				panVals[0] = cos(theta) * norm;
 				panVals[1] = 0.f;
 				panVals[2] = 0.f;
-				panVals[3] = theta * (2 / M_PI) * norm; 
+				panVals[3] = sin(theta) * norm;
 				break;
 			case 3: // compromise 4.5dB panning (figure 8), normalised to gain = 1 with knob in centre
 				norm = 1.f / sqrt(M_SQRT2 / 4);
@@ -101,12 +101,12 @@ struct Aux8 : Module {
 				panVals[2] = 0.f;
 				panVals[3] = sqrt(theta * (2 / M_PI) * sin(theta)) * norm;
 				break;
-			case 4: // constant power panning (figure 7), normalised to gain = 1 with knob in centre
-				norm = M_SQRT2;
-				panVals[0] = cos(theta) * norm;
+			case 4: // linear panning (figure 6), normalised to gain = 1 with knob in centre
+				norm = 2.f;
+				panVals[0] = (M_PI_2 - theta) * (2 / M_PI) * norm; 
 				panVals[1] = 0.f;
 				panVals[2] = 0.f;
-				panVals[3] = sin(theta) * norm;
+				panVals[3] = theta * (2 / M_PI) * norm; 
 				break;
 			default: // we shouldn't get here
 				panVals[0] = panVals[1] = panVals[2] = panVals[3] = 0.f;
@@ -156,6 +156,10 @@ struct Aux8 : Module {
 		if (changed) {
 			returnInput.setScaling(trackPanVals, rl);
 		}
+		//don't have to do these every time, but does it save anything to check?
+		soloMe = params[TModule::SOLO_PARAM].getValue();
+		muteMe = params[TModule::MUTE_PARAM].getValue();
+		
 	} //updateGains
 	
 	virtual inline bool calcLeftExpansion() {
@@ -238,7 +242,7 @@ struct Aux8Widget : ModuleWidget {
 	void appendContextMenu(Menu* menu) override {
 		TModule* module = getModule<TModule>();
 		if (module->model != modelInsOutsGains) menu->addChild(new MenuSeparator);
-		menu->addChild(createIndexPtrSubmenuItem("Return Pan Mode", {"Use Master (default)", "True Pan (L + R)", "Linear Attenuation","6dB Boost (linear)", "4.5dB Boost (compromise)", "3dB boost (constant power)"}, &module->returnPanMode));
+		menu->addChild(createIndexPtrSubmenuItem("Return Pan Mode", {"Use Master (default)", "True Pan (L + R)", "Linear Attenuation", "3dB boost (constant power)", "4.5dB Boost (compromise)", "6dB Boost (linear)"}, &module->returnPanMode));
 	}
 	
 	void step() override {
@@ -254,8 +258,8 @@ struct Aux8Widget : ModuleWidget {
 				SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 				svgPanel->fb->dirty = true;
 			}
-			module->lights[TModule::SOLO_LIGHT].setBrightness(module->soloMe = module->params[TModule::SOLO_PARAM].getValue());
-			module->lights[TModule::MUTE_LIGHT].setBrightness(module->muteMe = module->params[TModule::MUTE_PARAM].getValue());
+			//module->lights[TModule::SOLO_LIGHT].setBrightness(module->soloMe = module->params[TModule::SOLO_PARAM].getValue());
+			//module->lights[TModule::MUTE_LIGHT].setBrightness(module->muteMe = module->params[TModule::MUTE_PARAM].getValue());
 		}
 		ModuleWidget::step();
 	}
