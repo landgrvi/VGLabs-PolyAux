@@ -60,12 +60,10 @@ struct InsOutsGains : Aux8<InsOutsGains> {
 	float debugValue2 = -6.f;
 	
 	comboAudioIn firstInput; // from input ports - does not scale
-	comboAudioOut pregainOutput; // to right module and output ports - does not scale
 	comboAudioOut wetOutput; // to output ports - scales
 
 	comboAudioIn wetInput; // from right module - already scaled
 	
-	comboAudioLinked<comboAudioIn, comboAudioOut> firstWithPregain; // for making straight copy of firstInput to pregainOutput
 	comboAudioLinked<comboAudioIn, comboAudioOut> firstWithSend; // for applying channel gains/mutes on firstInput to sendOutput
 	comboAudioLinked<comboAudioIn, comboAudioOut> returnWithWet; // for adding returnInput to wetOutput
 

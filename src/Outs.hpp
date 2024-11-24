@@ -33,7 +33,7 @@ struct Outs : Module {
 	expMessage rightMessages[2][1]; // messages to & from right module
 	
 	comboAudioOut pregainOutput; // from right module, to output ports
-	comboAudio wetAudio; // from right module, (todo: to output ports)
+	comboAudio wetAudio; // from right module, to output ports
 	
     Outs() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);

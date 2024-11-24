@@ -25,7 +25,6 @@ InsOutsGains::InsOutsGains() {
 	wetInput.clearAudio();
 
 	firstWithSend.setPorts(&firstInput, &sendOutput);
-	firstWithPregain.setPorts(&firstInput, &pregainOutput);
 	returnWithWet.setPorts(&returnInput, &wetOutput);
 }
 
@@ -47,16 +46,11 @@ void InsOutsGains::process(const ProcessArgs &args) {
 	}
 
 	firstInput.pullAudio();
-	pregainOutput.setChannelsFromInput(&firstInput);
 	sendOutput.setChannelsFromInput(&firstInput);
 
-	firstWithPregain.copyAudio();
 	firstWithSend.gainAudio(monoGains);
 
 //	returnInput.pullAudio(!muteMe && (soloMe || (soloTracks == 0))); //broken, but why
-//	if (!muteMe && (soloMe || (soloTracks == 0))) { returnInput.pullAudio(true); } else { returnInput.pullAudio(false); } //nominal
-//	returnInput.pullAudio((!muteMe && (soloMe || (soloTracks == 0))) ? true : false); //nominal
-	//float pans[4] = {1, 1, 0, 0};
 	returnInput.pullAudio((!muteMe && (soloMe || (soloTracks == 0))) ? true : false);
 	wetOutput.setChannelsFromInput(&returnInput);
 
@@ -70,15 +64,14 @@ void InsOutsGains::process(const ProcessArgs &args) {
 		expMessage* rightSource = (expMessage*)(rightExpander.consumerMessage); // this is mine; my rightExpander.producer message is written by the rightward module, which requests flip
 		
 		for (unsigned int i = 0; i < 4; i++) {
-			rightSink->pregainAudio[i] = pregainOutput.allAudio[i];
+			rightSink->pregainAudio[i] = firstInput.allAudio[i];
 		}
-		rightSink->pregainChans = pregainOutput.ilChannels;
+		rightSink->pregainChans = firstInput.ilChannels;
 		wetInput.setAudio(rightSource->wetAudio);
 		wetInput.setChannels(rightSource->wetChans);
 		wetOutput.setChannels(std::max(wetInput.ilChannels, wetOutput.ilChannels), std::max(wetInput.leftChannels, wetOutput.leftChannels), std::max(wetInput.rightChannels, wetOutput.rightChannels));
 		returnAndFirstWithWet.setPorts(&returnInput, &firstInput, &wetOutput, &wetInput);
 		returnAndFirstWithWet.blendAudio(params[DRYPLUS_PARAM].getValue());
-		//returnAndFirstWithWet.blendAudio(params[DRYPLUS_PARAM].getValue(), params[RETURN_GAIN_PARAM].getValue(), &wetInput, params[MASTER_GAIN_PARAM].getValue() * (1.f - params[MASTER_MUTE_PARAM].getValue()), masterPanVals );
 
 		soloToRight = params[SOLO_PARAM].getValue();
 		numMe = 1;
@@ -92,7 +85,6 @@ void InsOutsGains::process(const ProcessArgs &args) {
 	} else {
 		returnAndFirstWithWet.setPorts(&returnInput, &firstInput, &wetOutput);
 		returnAndFirstWithWet.blendAudio(params[DRYPLUS_PARAM].getValue());
-		//returnAndFirstWithWet.blendAudio(params[DRYPLUS_PARAM].getValue(), params[RETURN_GAIN_PARAM].getValue(), params[MASTER_GAIN_PARAM].getValue() * (1.f - params[MASTER_MUTE_PARAM].getValue()), masterPanVals);
 		soloTracks = params[SOLO_PARAM].getValue();
 		numModules = 1;
 	}
@@ -100,9 +92,9 @@ void InsOutsGains::process(const ProcessArgs &args) {
 	if (expandsLeftward) {
 		expMessage* leftSink = (expMessage*)(leftExpander.module->rightExpander.producerMessage); // this is the left module's; I write to it and request flip
 		for (unsigned int i = 0; i < 4; i++) {
-			leftSink->pregainAudio[i] = pregainOutput.allAudio[i];
+			leftSink->pregainAudio[i] = firstInput.allAudio[i];
 		}
-		leftSink->pregainChans = pregainOutput.ilChannels;
+		leftSink->pregainChans = firstInput.ilChannels;
 		for (unsigned int i = 0; i < 4; i++) {
 			leftSink->wetAudio[i] = wetOutput.allAudio[i];
 		}
@@ -182,12 +174,6 @@ struct InsOutsGainsWidget : Aux8Widget<InsOutsGains> {
 		addParam(createParamCentered<VCVSlider>(mm2px(Vec(8.5, 93)), module, InsOutsGains::MASTER_GAIN_PARAM));
 		addParam(createParamCentered<btnMute>(mm2px(Vec(8.5, 110)), module, InsOutsGains::MASTER_MUTE_PARAM));
 		addParam(createParamCentered<ChickenHeadKnobIvory>(mm2px(Vec(8.5, 12+(15*7.2))), module, InsOutsGains::DRYPLUS_PARAM));
-		//addParam(createLightParamCentered<TestButton<SmallSimpleLight<RedLight>>>(mm2px(Vec(8.5,12+(15*5))), module, InsOutsGains::TEST_PARAM, InsOutsGains::TEST_LIGHT));
-		
-		//addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(8.5, 99)), module, InsOutsGains::INTERLEAVED_PREGAIN_OUTPUT));
-		//addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(8.5, 108)), module, InsOutsGains::LEFT_PREGAIN_OUTPUT));
-		//addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(8.5, 117)), module, InsOutsGains::RIGHT_PREGAIN_OUTPUT));
-		
 /*
 		labelTotal = new Label;
 		labelTotal->box.size = Vec(50, 20);
