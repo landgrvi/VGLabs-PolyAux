@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="12mm"
-   height="12mm"
-   viewBox="0 0 12 12"
+   width="11mm"
+   height="11mm"
+   viewBox="0 0 11 11"
    version="1.1"
    id="svg8975"
    inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
@@ -26,8 +26,8 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="16"
-     inkscape:cx="27.21875"
-     inkscape:cy="20.53125"
+     inkscape:cx="9.25"
+     inkscape:cy="20.71875"
      inkscape:window-width="1920"
      inkscape:window-height="1018"
      inkscape:window-x="0"
@@ -46,7 +46,7 @@
        fy="148.5"
        r="66.15155"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.05290881,0,0,0.05290881,0.44457522,-1.8569598)" />
+       gradientTransform="matrix(0.05290881,0,0,0.05290881,2.4445752,-1.8569598)" />
     <linearGradient
        inkscape:collect="always"
        id="linearGradient1141">
@@ -63,22 +63,23 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(-2.5,-0.49999974)">
     <circle
        style="fill:#ffe6d5;fill-opacity:1;stroke:none;stroke-width:0.000158726;stroke-linejoin:round"
        id="path238-5"
-       cx="6"
+       cx="8"
        cy="6"
        r="3.5" />
     <circle
        style="fill:url(#radialGradient1143);fill-opacity:1;stroke:none;stroke-width:0.000158726;stroke-linejoin:round"
        id="path238"
-       cx="6"
+       cx="8"
        cy="6"
        r="3.5" />
     <g
        id="g10713"
-       transform="matrix(0.05726444,0,0,0.05726444,-0.01275598,-2.0307346)">
+       transform="matrix(0.05726444,0,0,0.05246054,1.987244,-1.3536998)">
       <path
          id="path3537-1"
          style="fill:#ffb380;fill-opacity:1;stroke-width:0.00616979;stroke-linejoin:round"

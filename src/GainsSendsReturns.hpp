@@ -6,7 +6,6 @@
 using namespace rack;
 
 struct GainsSendsReturns : Aux8<GainsSendsReturns> {
-
 	enum ParamId {
 		ENUMS(GAIN_PARAMS, 8),
 		ENUMS(MUTE_PARAMS, 8),
@@ -43,8 +42,11 @@ struct GainsSendsReturns : Aux8<GainsSendsReturns> {
 	comboAudioLinked<comboAudioIn, comboAudio> returnWithWet;
 	
 	GainsSendsReturns() ;
-	
 	void process(const ProcessArgs &args) override ;
-	//void updateGains() ;
-	
 };
+
+struct GainsSendsReturnsWidget : Aux8Widget<GainsSendsReturns> {
+	GainsSendsReturnsWidget(GainsSendsReturns* module) : Aux8Widget<GainsSendsReturns>(module, "res/GainsSendsReturns_6hp_Plus.svg") { }
+};
+
+Model* modelGainsSendsReturns = createModel<GainsSendsReturns, GainsSendsReturnsWidget>("GainsSendsReturns");

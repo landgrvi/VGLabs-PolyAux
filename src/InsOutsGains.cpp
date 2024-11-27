@@ -42,16 +42,17 @@ void InsOutsGains::process(const ProcessArgs &args) {
 		//DEBUG("%" PRId64 " numModules:%i", id, numModules);
 		//DEBUG("%" PRId64, id);
 		//DEBUG("%f %f", debugValue1, debugValue2);
+		//DEBUG("%" PRId64 " copyMono: %d", id, firstInput.polyAuxDbg);
 		//updateGains();
 	}
 
-	firstInput.pullAudio();
+	firstInput.pullAudio(true, monoInputMode);
 	sendOutput.setChannelsFromInput(&firstInput);
 
 	firstWithSend.gainAudio(monoGains);
 
 //	returnInput.pullAudio(!muteMe && (soloMe || (soloTracks == 0))); //broken, but why
-	returnInput.pullAudio((!muteMe && (soloMe || (soloTracks == 0))) ? true : false);
+	returnInput.pullAudio(((!muteMe && (soloMe || (soloTracks == 0))) ? true : false), monoInputMode);
 	wetOutput.setChannelsFromInput(&returnInput);
 
 	// set up details for the expander
@@ -59,7 +60,6 @@ void InsOutsGains::process(const ProcessArgs &args) {
 	expandsLeftward = calcLeftExpansion();
 
 	if (expandsRightward) {
-			
 		expMessage* rightSink = (expMessage*)(rightExpander.module->leftExpander.producerMessage); // this is the rightward module's; I write to it and request flip
 		expMessage* rightSource = (expMessage*)(rightExpander.consumerMessage); // this is mine; my rightExpander.producer message is written by the rightward module, which requests flip
 		
@@ -95,8 +95,15 @@ void InsOutsGains::process(const ProcessArgs &args) {
 			leftSink->pregainAudio[i] = firstInput.allAudio[i];
 		}
 		leftSink->pregainChans = firstInput.ilChannels;
-		for (unsigned int i = 0; i < 4; i++) {
-			leftSink->wetAudio[i] = wetOutput.allAudio[i];
+		if (wetOutput.scales) {
+			for (unsigned int i = 0; i < 2; i++) {
+				leftSink->wetAudio[i] = wetOutput.leftAudio[i] * wetOutput.scalingVals[0] + wetOutput.rightAudio[i] * wetOutput.scalingVals[1];
+				leftSink->wetAudio[i+2] = wetOutput.rightAudio[i] * wetOutput.scalingVals[3] + wetOutput.leftAudio[i] * wetOutput.scalingVals[2];
+			}
+		} else {
+			for (unsigned int i = 0; i < 4; i++) {
+				leftSink->wetAudio[i] = wetOutput.allAudio[i];
+			}
 		}
 		leftSink->wetChans = std::max(wetOutput.ilChannels, returnInput.ilChannels);
 		leftExpander.module->rightExpander.messageFlipRequested = true; // request left module to flip its rightExpander, as I've now written to its producer
@@ -133,77 +140,87 @@ json_t* InsOutsGains::dataToJson() {
 	json_t* rootJ = json_object();
 	json_object_set_new(rootJ, "returnPanMode", json_integer(returnPanMode));
 	json_object_set_new(rootJ, "masterPanMode", json_integer(masterPanMode));
+	json_object_set_new(rootJ, "trackLabels", json_string(trackLabelChars));
 	return rootJ;
 }
 
 void InsOutsGains::dataFromJson(json_t* rootJ) {
 	json_t* returnPanModeJ = json_object_get(rootJ, "returnPanMode");
-	if (returnPanModeJ)
-		returnPanMode = json_integer_value(returnPanModeJ);
+	if (returnPanModeJ)	returnPanMode = json_integer_value(returnPanModeJ);
 	json_t* masterPanModeJ = json_object_get(rootJ, "masterPanMode");
-	if (masterPanModeJ)
-		masterPanMode = json_integer_value(masterPanModeJ);
+	if (masterPanModeJ)	masterPanMode = json_integer_value(masterPanModeJ);
+	json_t* trackLabelsJ = json_object_get(rootJ, "trackLabels");
+	if (trackLabelsJ) sprintf(trackLabelChars, "%32s", json_string_value(trackLabelsJ));
 }
 
 void InsOutsGains::onReset(const ResetEvent& e) {
 	masterPanMode = 3;
+	strncpy(trackLabelChars,"-01--02--03--04--05--06--07--08-", 33);
+	loadLabels = true;
 	Aux8::onReset(e);
 }	
 
-		
-struct InsOutsGainsWidget : Aux8Widget<InsOutsGains> {
+InsOutsGainsWidget::InsOutsGainsWidget(InsOutsGains* module) : Aux8Widget<InsOutsGains>(module, "res/InsOutsGains_11hp_Plus.svg") {
+	// Column 1: Inputs, outputs, dry inmix knob
+	float xpos = 9;
+	float ypos = 15;
+	addInput(createInputCentered<WhiteRedPJ301MPort>(mm2px(Vec(xpos, ypos)), module, InsOutsGains::INTERLEAVED_INPUT));
+	addInput(createInputCentered<WhitePJ301MPort>(mm2px(Vec(xpos, ypos + 9)), module, InsOutsGains::LEFT_INPUT));
+	addInput(createInputCentered<RedPJ301MPort>(mm2px(Vec(xpos, ypos + 18)), module, InsOutsGains::RIGHT_INPUT));
 
-	unsigned int oldModules = 0;
-	Label* labelTotal;
-
-	InsOutsGainsWidget(InsOutsGains* module) : Aux8Widget<InsOutsGains>(module, "res/InsOutsGains_9hp_Plus.svg") {
-		
-		// Columns 2 and 3 handled by Aux8Widget constructor
-
-		// Column 1: Inputs, outputs, dry inmix knob
-
-		addInput(createInputCentered<WhiteRedPJ301MPort>(mm2px(Vec(8.5, 12)), module, InsOutsGains::INTERLEAVED_INPUT));
-		addInput(createInputCentered<WhitePJ301MPort>(mm2px(Vec(8.5, 21)), module, InsOutsGains::LEFT_INPUT));
-		addInput(createInputCentered<RedPJ301MPort>(mm2px(Vec(8.5, 30)), module, InsOutsGains::RIGHT_INPUT));
-
-		addOutput(createOutputCentered<WhiteRedPJ301MPort>(mm2px(Vec(8.5, 43)), module, InsOutsGains::INTERLEAVED_WET_OUTPUT));
-		addOutput(createOutputCentered<WhitePJ301MPort>(mm2px(Vec(8.5, 52)), module, InsOutsGains::LEFT_WET_OUTPUT));
-		addOutput(createOutputCentered<RedPJ301MPort>(mm2px(Vec(8.5, 61)), module, InsOutsGains::RIGHT_WET_OUTPUT));
-		
-		addParam(createParamCentered<ChickenHeadKnobIvory>(mm2px(Vec(8.5, 12+(15*4))), module, InsOutsGains::MASTER_PAN_PARAM));
-		addParam(createParamCentered<VCVSlider>(mm2px(Vec(8.5, 93)), module, InsOutsGains::MASTER_GAIN_PARAM));
-		addParam(createParamCentered<btnMute>(mm2px(Vec(8.5, 110)), module, InsOutsGains::MASTER_MUTE_PARAM));
-		addParam(createParamCentered<ChickenHeadKnobIvory>(mm2px(Vec(8.5, 12+(15*7.2))), module, InsOutsGains::DRYPLUS_PARAM));
-/*
-		labelTotal = new Label;
-		labelTotal->box.size = Vec(50, 20);
-		labelTotal->box.pos = mm2px(Vec(0 , 75));
-		labelTotal->text = "foo";
-		labelTotal->fontSize = 24;
-		labelTotal->alignment = ui::Label::CENTER_ALIGNMENT;
-		addChild(labelTotal);
-*/
-	}
-
-	void appendContextMenu(Menu* menu) override {
-		InsOutsGains* module = getModule<InsOutsGains>();
-		menu->addChild(new MenuSeparator);
-		menu->addChild(createIndexPtrSubmenuItem("Master Pan Mode", {"True Pan (L + R)", "Linear Attenuation", "3dB boost (constant power)", "4.5dB Boost (compromise, default)", "6dB Boost (linear)"}, &module->masterPanMode));
-		Aux8Widget<InsOutsGains>::appendContextMenu(menu);
-	}
+	addOutput(createOutputCentered<WhiteRedPJ301MPort>(mm2px(Vec(xpos, ypos + 32)), module, InsOutsGains::INTERLEAVED_WET_OUTPUT));
+	addOutput(createOutputCentered<WhitePJ301MPort>(mm2px(Vec(xpos, ypos + 41)), module, InsOutsGains::LEFT_WET_OUTPUT));
+	addOutput(createOutputCentered<RedPJ301MPort>(mm2px(Vec(xpos, ypos + 50)), module, InsOutsGains::RIGHT_WET_OUTPUT));
 	
-	
-	void step() override {
+	addParam(createParamCentered<ChickenHeadKnobIvory>(mm2px(Vec(xpos, ypos + 63)), module, InsOutsGains::MASTER_PAN_PARAM));
+	addParam(createParamCentered<VGLabsSlider>(mm2px(Vec(xpos, 95.5)), module, InsOutsGains::MASTER_GAIN_PARAM));
+	addParam(createParamCentered<btnMute>(mm2px(Vec(xpos, 110)), module, InsOutsGains::MASTER_MUTE_PARAM));
+	addParam(createParamCentered<ChickenHeadKnobIvory>(mm2px(Vec(xpos, 120)), module, InsOutsGains::DRYPLUS_PARAM));
+
+	//Column 2: Track labels
+	for (unsigned int i = 0; i < 8; i++) {
+		LedDisplayTextFieldRoundedRect<InsOutsGains>* d = createWidget<LedDisplayTextFieldRoundedRect<InsOutsGains>>(mm2px(Vec(20,12)));
+		d->module = module ? module : nullptr;
+		d->index = i;
+		d->box.size = Vec(28, 15);
+		d->textOffset = Vec(-2, -2);
+		d->box.pos = mm2px(Vec(18, 12.1 + 14 * i));
+		d->color = color::GREEN;
+		d->bgColor = VGLABSPURPLE;
+		d->text = "ABCD";
 		if (module) {
-			InsOutsGains* module = static_cast<InsOutsGains*>(this->module);
-			if (oldModules != module->numModules) {
-				//labelTotal->text = std::to_string(module->numModules);
-				oldModules = module->numModules;
-			}
+			d->text.assign(&(module->trackLabelChars[i * 4]), 4);
+			module->trackLabels[i] = d;
 		}
-		
-		Aux8Widget::step();
+		addChild(d);
 	}
-};
+	// Columns 3&4 handled by Aux8Widget constructor
+
+}
+
+void InsOutsGainsWidget::appendContextMenu(Menu* menu) {
+	InsOutsGains* module = getModule<InsOutsGains>();
+	menu->addChild(new MenuSeparator);
+	menu->addChild(createIndexPtrSubmenuItem("Master Pan", {"True Pan (L + R)", "Linear Attenuation", "3dB boost (constant power)", "4.5dB Boost (compromise, default)", "6dB Boost (linear)"}, &module->masterPanMode));
+	Aux8Widget<InsOutsGains>::appendContextMenu(menu);
+}
+
+void InsOutsGainsWidget::step() {
+	if (module) {
+		InsOutsGains* module = static_cast<InsOutsGains*>(this->module);
+		if (oldModules != module->numModules) {
+			//labelTotal->text = std::to_string(module->numModules);
+			oldModules = module->numModules;
+		}
+		if (module->loadLabels) {
+			for (unsigned int i = 0; i < 8; i++) {
+				module->trackLabels[i]->text.assign(&(module->trackLabelChars[i * 4]), 4);
+			}
+			module->loadLabels = false;
+		}
+	}
+	Aux8Widget::step();
+}
 
 Model* modelInsOutsGains = createModel<InsOutsGains, InsOutsGainsWidget>("InsOutsGains");
+

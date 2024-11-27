@@ -6,7 +6,6 @@
 using namespace rack;
 
 struct InsOutsGains : Aux8<InsOutsGains> {
-
 	enum ParamId {
 		MASTER_PAN_PARAM,
 		MASTER_GAIN_PARAM,
@@ -51,6 +50,9 @@ struct InsOutsGains : Aux8<InsOutsGains> {
 		LIGHTS_LEN
 	};
 	
+	LedDisplayTextFieldRoundedRect<InsOutsGains>* trackLabels[8];
+	char trackLabelChars[33] = "-01--02--03--04--05--06--07--08-";
+	bool loadLabels = true;
 	float masterPanVals[4] = {1.f, 0.f, 0.f, 1.f};
 	float oldMasterPanVal = -2.f; //start out of bounds
 	float oldMasterLevel = -1.f;
@@ -77,3 +79,13 @@ struct InsOutsGains : Aux8<InsOutsGains> {
 	void dataFromJson(json_t* rootJ) override ;
 	void onReset(const ResetEvent& e) override ;
 };
+
+struct InsOutsGainsWidget : Aux8Widget<InsOutsGains> {
+	unsigned int oldModules = 0;
+	Label* labelTotal;
+
+	InsOutsGainsWidget(InsOutsGains* module) ;
+	void appendContextMenu(Menu* menu) override ;
+	void step() override ;
+};
+

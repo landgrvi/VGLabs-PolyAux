@@ -31,6 +31,7 @@ struct Aux8 : Module {
 	unsigned int oldMasterPanMode = 8; // out of range to force initial update
 	float trackPanVals[4] = { };
 	float oldReturnLevel = -1.f;
+	unsigned int monoInputMode = 0;
 	
 	comboAudioOut sendOutput; // to effect
 	comboAudioIn returnInput; // from effect 
@@ -43,7 +44,7 @@ struct Aux8 : Module {
 		char strBuf[32];
 		for (unsigned int i = 0; i < 8; i++) {
 			snprintf(strBuf, 32, "Gain channel %d", i + 1);
-			configParam(TModule::GAIN_PARAMS + i, 0.f, 2.f, 1.f, strBuf, " dB", -10, 40.f); //From MindMeld Auxpander: configParam(GLOBAL_AUXSEND_PARAMS + i, 0.0f, maxAGGlobSendFader, 1.0f, strBuf, " dB", -10, 20.0f * GlobalConst::globalAuxSendScalingExponent);
+			configParam(TModule::GAIN_PARAMS + i, 0.f, 2.f, 1.f, strBuf, " dB", -10, 40.f); 
 			snprintf(strBuf, 32, "Mute channel %d", i + 1);
 			configParam(TModule::MUTE_PARAMS + i, 0.f, 1.f, 1.f, strBuf);
 		}
@@ -54,7 +55,6 @@ struct Aux8 : Module {
 		configInput(TModule::LEFT_RETURN, "Left return");
 		configInput(TModule::RIGHT_RETURN, "Right return");
 		configParam(TModule::RETURN_PAN_PARAM, -1.f, 1.f, 0.f, "Return pan", "%", 0, 100);
-		//configParam(TModule::RETURN_PAN_PARAM, 0.f, M_PI_2, M_PI_4, "Return pan", "%", 0, 100);
 		configParam(TModule::RETURN_GAIN_PARAM, 0.f, M_SQRT2, 1.f, "Return level", " dB", -10, 40);
 		configParam(TModule::SOLO_PARAM, 0.f, 1.f, 0.f, "Solo");
 		configParam(TModule::MUTE_PARAM, 0.f, 1.f, 0.f, "Mute");
@@ -69,52 +69,7 @@ struct Aux8 : Module {
 
 	} //Aux8 constructor
 	
-	//This is really a helper, should probably go in some other file
-	virtual void setPanVals(float* panVals, float pv, unsigned int panMode) {
-		float theta = (pv + 1) * M_PI_4;  // -1 to 1 -> 0 to M_PI_2
-		float norm = 1.f;
-		switch (panMode) {
-			case 0: //additive (MM "true panning")
-				panVals[0] = pv <= 0.f ? 1.f : (1.f - pv) / 1.f; //amount of left in left channel
-				panVals[1] = pv < 0.f ? -pv / 1.f : 0.f; //amount of right added to left channel
-				panVals[2] = pv > 0.f ? pv / 1.f : 0.f; //amount of left added to right channel
-				panVals[3] = pv >= 0.f ? 1.f : (1.f + pv) / 1.f; //amount of right in right channel
-				break;
-			case 1: //attenuative (MM "stereo balance linear")
-				panVals[0] = pv <= 0.f ? 1.f : (1.f - pv) / 1.f; 
-				panVals[1] = 0.f;
-				panVals[2] = 0.f;
-				panVals[3] = pv >= 0.f ? 1.f : (1.f + pv) / 1.f; 
-				break;
-		// From https://www.cs.cmu.edu/~music/icm-online/readings/panlaws/panlaws.pdf
-			case 2: // constant power panning (figure 7), normalised to gain = 1 with knob in centre
-				norm = M_SQRT2;
-				panVals[0] = cos(theta) * norm;
-				panVals[1] = 0.f;
-				panVals[2] = 0.f;
-				panVals[3] = sin(theta) * norm;
-				break;
-			case 3: // compromise 4.5dB panning (figure 8), normalised to gain = 1 with knob in centre
-				norm = 1.f / sqrt(M_SQRT2 / 4);
-				panVals[0] = sqrt((M_PI_2 - theta) * (2 / M_PI) * cos(theta)) * norm;
-				panVals[1] = 0.f;
-				panVals[2] = 0.f;
-				panVals[3] = sqrt(theta * (2 / M_PI) * sin(theta)) * norm;
-				break;
-			case 4: // linear panning (figure 6), normalised to gain = 1 with knob in centre
-				norm = 2.f;
-				panVals[0] = (M_PI_2 - theta) * (2 / M_PI) * norm; 
-				panVals[1] = 0.f;
-				panVals[2] = 0.f;
-				panVals[3] = theta * (2 / M_PI) * norm; 
-				break;
-			default: // we shouldn't get here
-				panVals[0] = panVals[1] = panVals[2] = panVals[3] = 0.f;
-		}
-	}
-
     virtual void updateGains() {
-
 		bool changed = false;
 		for (unsigned int i = 0; i < 8; i++) {
 			if (params[TModule::MUTE_PARAMS + i].getValue() != oldMuteVals[i]) {
@@ -156,10 +111,9 @@ struct Aux8 : Module {
 		if (changed) {
 			returnInput.setScaling(trackPanVals, rl);
 		}
-		//don't have to do these every time, but does it save anything to check?
+		//don't have to do these every time, but would it save anything to check?
 		soloMe = params[TModule::SOLO_PARAM].getValue();
 		muteMe = params[TModule::MUTE_PARAM].getValue();
-		
 	} //updateGains
 	
 	virtual inline bool calcLeftExpansion() {
@@ -173,6 +127,7 @@ struct Aux8 : Module {
 	json_t* dataToJson() override {
 		json_t* rootJ = json_object();
 		json_object_set_new(rootJ, "returnPanMode", json_integer(returnPanMode));
+		json_object_set_new(rootJ, "monoInputMode", json_integer(monoInputMode));
 		return rootJ;
 	}
 
@@ -180,13 +135,16 @@ struct Aux8 : Module {
 		json_t* returnPanModeJ = json_object_get(rootJ, "returnPanMode");
 		if (returnPanModeJ)
 			returnPanMode = json_integer_value(returnPanModeJ);
+		json_t* monoInputModeJ = json_object_get(rootJ, "monoInputMode");
+		if (monoInputModeJ)
+			monoInputMode = json_integer_value(monoInputModeJ);
 	}
 
 	void onReset(const ResetEvent& e) override {
 		Module::onReset(e);
 		returnPanMode = 0;
+		monoInputMode = 1;
 	}	
-	
 }; // Aux8	
 
 template<typename TModule>
@@ -202,24 +160,25 @@ struct Aux8Widget : ModuleWidget {
 		
 		// Penultimate column: Gains and mutes per channel
 		float xpos = 0;
-		xpos = box.pos.x + box.size.x - 66;
+		float ypos = 15;
+		xpos = box.pos.x + box.size.x - 65;
 		for (unsigned int i = 0; i < 8; i++) {
-			addParam(createParamCentered<ChickenHeadKnobIvory>(Vec(xpos, mm2px(12+(15*i))), module, TModule::GAIN_PARAMS + i));
-			addParam(createLightParamCentered<GreenRedLightLatch>(Vec(xpos, mm2px(12+(15*i))), module, TModule::MUTE_PARAMS + i, TModule::MUTE_LIGHTS + (i * 2)));
+			addParam(createParamCentered<ChickenHeadKnobIvory>(Vec(xpos, mm2px(ypos+(14*i))), module, TModule::GAIN_PARAMS + i));
+			addParam(createLightParamCentered<GreenRedLightLatch>(Vec(xpos, mm2px(ypos+(14*i))), module, TModule::MUTE_PARAMS + i, TModule::MUTE_LIGHTS + (i * 2)));
 		}
 		
 		// Last column: Sends & Returns
-		xpos = box.pos.x + box.size.x - 23.5;
-		addOutput(createOutputCentered<WhiteRedPJ301MPort>(Vec(xpos, box.pos.y + mm2px(12)), module, TModule::INTERLEAVED_SEND));
-		addOutput(createOutputCentered<WhitePJ301MPort>(Vec(xpos, box.pos.y + mm2px(21)), module, TModule::LEFT_SEND));
-		addOutput(createOutputCentered<RedPJ301MPort>(Vec(xpos, box.pos.y + mm2px(30)), module, TModule::RIGHT_SEND));
+		xpos = box.pos.x + box.size.x - 28;
+		addOutput(createOutputCentered<WhiteRedPJ301MPort>(Vec(xpos, box.pos.y + mm2px(ypos)), module, TModule::INTERLEAVED_SEND));
+		addOutput(createOutputCentered<WhitePJ301MPort>(Vec(xpos, box.pos.y + mm2px(ypos + 9)), module, TModule::LEFT_SEND));
+		addOutput(createOutputCentered<RedPJ301MPort>(Vec(xpos, box.pos.y + mm2px(ypos + 18)), module, TModule::RIGHT_SEND));
 		
-		addInput(createInputCentered<WhiteRedPJ301MPort>(Vec(xpos, box.pos.y + mm2px(43)), module, TModule::INTERLEAVED_RETURN));
-		addInput(createInputCentered<WhitePJ301MPort>(Vec(xpos, box.pos.y + mm2px(52)), module, TModule::LEFT_RETURN));
-		addInput(createInputCentered<RedPJ301MPort>(Vec(xpos, box.pos.y + mm2px(61)), module, TModule::RIGHT_RETURN));
+		addInput(createInputCentered<WhiteRedPJ301MPort>(Vec(xpos, box.pos.y + mm2px(ypos + 32)), module, TModule::INTERLEAVED_RETURN));
+		addInput(createInputCentered<WhitePJ301MPort>(Vec(xpos, box.pos.y + mm2px(ypos + 41)), module, TModule::LEFT_RETURN));
+		addInput(createInputCentered<RedPJ301MPort>(Vec(xpos, box.pos.y + mm2px(ypos + 50)), module, TModule::RIGHT_RETURN));
 
-		addParam(createParamCentered<ChickenHeadKnobIvory>(Vec(xpos, mm2px(12+(15*4))), module, TModule::RETURN_PAN_PARAM));
-		addParam(createParamCentered<VCVSlider>(Vec(xpos, box.pos.y + mm2px(93)), module, TModule::RETURN_GAIN_PARAM));
+		addParam(createParamCentered<ChickenHeadKnobIvory>(Vec(xpos, mm2px(ypos + 63)), module, TModule::RETURN_PAN_PARAM));
+		addParam(createParamCentered<VGLabsSlider>(Vec(xpos, box.pos.y + mm2px(95.5)), module, TModule::RETURN_GAIN_PARAM));
 		addParam(createParamCentered<btnMute>(Vec(xpos, box.pos.y + mm2px(110)), module, TModule::MUTE_PARAM));
 		addParam(createParamCentered<btnSolo>(Vec(xpos, box.pos.y + mm2px(116)), module, TModule::SOLO_PARAM));
 	}
@@ -242,7 +201,8 @@ struct Aux8Widget : ModuleWidget {
 	void appendContextMenu(Menu* menu) override {
 		TModule* module = getModule<TModule>();
 		if (module->model != modelInsOutsGains) menu->addChild(new MenuSeparator);
-		menu->addChild(createIndexPtrSubmenuItem("Return Pan Mode", {"Use Master (default)", "True Pan (L + R)", "Linear Attenuation", "3dB boost (constant power)", "4.5dB Boost (compromise)", "6dB Boost (linear)"}, &module->returnPanMode));
+		menu->addChild(createIndexPtrSubmenuItem("Return Pan", {"Use Master (default)", "True Pan (L + R)", "Linear Attenuation", "3dB boost (constant power)", "4.5dB Boost (compromise)", "6dB Boost (linear)"}, &module->returnPanMode));
+		menu->addChild(createIndexPtrSubmenuItem("Mono Input", {"Do Nothing", "Copy L to R (default)"}, &module->monoInputMode));
 	}
 	
 	void step() override {
@@ -265,4 +225,89 @@ struct Aux8Widget : ModuleWidget {
 	}
 }; // Aux8Widget
 
+//From MindMeldModular MixerWidgets.hpp
+// Editable track, group and aux displays base struct
+// --------------------
+/*
+struct EditableDisplayBase : LedDisplayTextField {
+	int numChars = 4;
+	bool doubleClick = false;
+	Widget* tabNextFocus = nullptr;
+	PackedBytes4* colorAndCloak = nullptr;
+	int8_t* dispColorLocal = nullptr;
+
+	EditableDisplayBase() {
+		box.size = mm2px(Vec(12.0f, 5.0f));// svg is 10.6 wide
+		textOffset = mm2px(Vec(0.0f, -0.9144));  // was Vec(6.0f, -2.7f); which is 2.032000, -0.914400 in mm
+		text = "-00-";
+		// DEBUG("%f, %f", 9.0f * MM_PER_IN / SVG_DPI, -2.0 * MM_PER_IN / SVG_DPI);
+	};
+	
+	void draw(const DrawArgs &args) override {}	// don't want background, which is in draw, actual text is in drawLayer
+	
+	void drawLayer(const DrawArgs &args, int layer) override {
+		if (layer == 1) {
+			if (colorAndCloak) {
+				int colorIndex = colorAndCloak->cc4[dispColorGlobal] < 7 ? colorAndCloak->cc4[dispColorGlobal] : *dispColorLocal;
+				color = DISP_COLORS[colorIndex];
+			}
+			if (cursor > numChars) {
+				text.resize(numChars);
+				cursor = numChars;
+				selection = numChars;
+			}
+			// nvgBeginPath(args.vg);
+			// nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
+			// nvgFillColor(args.vg, nvgRGBAf(0.0f, 0.0f, 0.8f, 1.0f));
+			// nvgFill(args.vg);		
+		}
+		LedDisplayTextField::drawLayer(args, layer);
+	}
+
+	void onSelectKey(const event::SelectKey& e) override {
+		if (e.action == GLFW_PRESS && e.key == GLFW_KEY_TAB && tabNextFocus != NULL) {
+			APP->event->setSelectedWidget(tabNextFocus);
+			e.consume(this);
+			return;			
+		}
+		LedDisplayTextField::onSelectKey(e);
+	}
+	
+	// don't want spaces since leading spaces are stripped by nanovg (which oui-blendish calls), so convert to dashes
+	void onSelectText(const event::SelectText &e) override {
+		if (e.codepoint < 128) {
+			char letter = (char) e.codepoint;
+			if (letter == 0x20) {// space
+				letter = 0x2D;// hyphen
+			}
+			std::string newText(1, letter);
+			insertText(newText);
+		}
+		e.consume(this);	
+		
+		if (text.length() > (unsigned)numChars) {
+			text = text.substr(0, numChars);
+			if (cursor > numChars) {
+				cursor = numChars;
+			}
+			selection = cursor;
+		}
+	}
+	
+	void onDoubleClick(const event::DoubleClick& e) override {
+		doubleClick = true;
+	}
+	
+	void onButton(const event::Button &e) override {
+		if (e.button == GLFW_MOUSE_BUTTON_LEFT && e.action == GLFW_RELEASE) {
+			if (doubleClick) {
+				doubleClick = false;
+				selectAll();
+			}
+		}
+		LedDisplayTextField::onButton(e);
+	}
+};
+*/
+// End direct copy from MindMeldModular
 

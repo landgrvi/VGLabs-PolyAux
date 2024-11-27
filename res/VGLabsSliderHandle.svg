@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 25.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   version="1.0"
+   id="svg164153"
+   x="0px"
+   y="0px"
+   width="4.3204px"
+   height="11.74218px"
+   viewBox="0 0 4.3204 11.74218"
+   enable-background="new 0 0 4.3204 11.74218"
+   xml:space="preserve"
+   sodipodi:docname="VGLabsSliderHandle.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs11076" />
+<sodipodi:namedview
+   bordercolor="#666666"
+   borderopacity="1.0"
+   fit-margin-bottom="0"
+   fit-margin-left="0"
+   fit-margin-right="0"
+   fit-margin-top="0"
+   id="base"
+   inkscape:current-layer="svg164153"
+   inkscape:cx="-45.961941"
+   inkscape:cy="2.0834396"
+   inkscape:document-units="mm"
+   inkscape:pageopacity="0.0"
+   inkscape:pageshadow="2"
+   inkscape:window-height="882"
+   inkscape:window-maximized="0"
+   inkscape:window-width="1600"
+   inkscape:window-x="0"
+   inkscape:window-y="0"
+   inkscape:zoom="7.9195959"
+   pagecolor="#ffffff"
+   showgrid="false"
+   inkscape:showpageshadow="2"
+   inkscape:pagecheckerboard="0"
+   inkscape:deskcolor="#d1d1d1">
+	</sodipodi:namedview>
+<path
+   fill="#454545"
+   d="M4.32028,11.74218H0V0h4.32028V11.74218z"
+   id="path11063" />
+<rect
+   y="8.87107"
+   fill="#787878"
+   width="4.32027"
+   height="1"
+   id="rect11065" />
+<rect
+   y="10.77812"
+   fill="#363636"
+   width="4.32027"
+   height="0.96405"
+   id="rect11067" />
+<rect
+   y="1.84624"
+   fill="#262626"
+   width="4.32027"
+   height="1"
+   id="rect11069" />
+<rect
+   fill="#5E5E5E"
+   width="4.32027"
+   height="0.79375"
+   id="rect11071" />
+<rect
+   y="2.87108"
+   fill="#D4D4D4"
+   width="4.32027"
+   height="6"
+   id="rect11073"
+   style="fill:#ffe6d5" />
+</svg>

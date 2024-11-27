@@ -141,7 +141,7 @@ struct SvgSwitchWithRoundedRectHalo : SvgSwitch {
 	
 	// derived classes must set up
 	NVGcolor haloColor = nvgRGB(0xFF, 0xFF, 0xFF);// this should match the color of fill of the on button
-	bool isRect = false;
+	//bool isRect = false;
 
 	SvgSwitchWithRoundedRectHalo() {
 		shadow->opacity = 0.0f;// Turn off shadows
@@ -192,4 +192,45 @@ struct btnSolo : SvgSwitchWithRoundedRectHalo {
 	}
 };
 		
+template<typename TModule>
+struct LedDisplayTextFieldRoundedRect : LedDisplayTextField {
+	TModule* module;
+	unsigned int index = 0;
+	int numChars = 4;
+	
+	void draw(const DrawArgs& args) override {
+		if (bgColor.a > 0.0) {
+			nvgBeginPath(args.vg);
+			nvgRoundedRect(args.vg, 0, .6, box.size.x, box.size.y, 3);
+			nvgFillColor(args.vg, bgColor);
+			nvgFill(args.vg);
+		}
+		LedDisplayTextField::draw(args);
+	}
 
+	void onChange( const event::Change &e ) override {
+		if (cursor > numChars) {
+			text.resize(numChars);
+			cursor = numChars;
+			selection = numChars;
+		}
+		if (module) {
+			std::string label = getText();
+			unsigned int s = index * 4;
+			unsigned int n = std::min(label.size(), (size_t)4);
+			strncpy(&(module->trackLabelChars[s]), label.c_str(), n);
+			for (unsigned int i = n; i < 4; i++) {
+				module->trackLabelChars[s + i] = ' ';
+			}
+		}
+		LedDisplayTextField::onChange(e);
+	}
+};
+
+struct VGLabsSlider : SvgSlider {
+	VGLabsSlider() {
+		setBackgroundSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/VGLabsSlider.svg")));
+		setHandleSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/VGLabsSliderHandle.svg")));
+		setHandlePosCentered(math::Vec(box.size.x / 2, box.size.y - 5), math::Vec(box.size.x / 2, 5));
+	}
+};

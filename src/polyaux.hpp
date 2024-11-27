@@ -5,13 +5,11 @@
 using namespace rack;
 
 //Note: "il" means "interleaved": L R L R L R...
-
 struct comboAudio {
 	unsigned int ilChannels = 0;
 	unsigned int leftChannels = 0;
 	unsigned int rightChannels = 0;
 	simd::float_4 allAudio[4] = { };
-	//simd::float_4* ilAudio = &(allAudio[0]);
 	simd::float_4* leftAudio = &(allAudio[0]);
 	simd::float_4* rightAudio = &(allAudio[2]);
 	// Just in case: 
@@ -94,7 +92,7 @@ struct comboAudio {
 		}
 	} //setAudio
 	
-	virtual void pushAudio() {} // I don't remember why. Do we need this?
+	virtual void pushAudio() {}
 	
 }; //comboAudio
 
@@ -112,12 +110,12 @@ struct comboAudioIn : comboAudio {
 		}
 	} //updateChannels
 	
-	void pullAudio(bool trackEnabled = true) {
+	void pullAudio(bool trackEnabled = true, unsigned int copyMono = 1) {
 		updateChannels(); //now ilChannels == leftChannels (or rightChannels) * 2
 		if (hasPorts && trackEnabled) {
 			float* ilp = ilPort->getVoltages();
 			float* lp = leftPort->getVoltages();
-			float* rp = rightPort->getVoltages();
+			float* rp = (copyMono && !ilPort->isConnected() && !rightPort->isConnected()) ? leftPort->getVoltages() : rightPort->getVoltages();
 			unsigned int c = 0;
 			unsigned int mc = 0;
 // i:  0               1
@@ -125,15 +123,11 @@ struct comboAudioIn : comboAudio {
 // c:  0 1 2 3 4 5 6 7 8 9 101112131415
 // mc: 0   1   2   3   4   5   6   7
 			if (scales) {
-				float amtLeft = scalingVals[0];
-				float amtRightToLeft = scalingVals[1];
-				float amtLeftToRight = scalingVals[2];
-				float amtRight = scalingVals[3];
 				for (unsigned int i = 0; i < 2; i++) {
 					for (unsigned int j = 0; j < 4; j++) {
-						leftAudio[i][j] = amtLeft * (ilp[c]  + lp[mc]) + amtRightToLeft * (rp[mc] + ilp[c + 1]);
+						leftAudio[i][j] = scalingVals[0] * (ilp[c]  + lp[mc]) + scalingVals[1] * (rp[mc] + ilp[c + 1]);
 						c++;  // increment interleaved channel
-						rightAudio[i][j] = amtRight * (ilp[c]  + rp[mc]) + amtLeftToRight * (lp[mc] + ilp[c - 1]);
+						rightAudio[i][j] = scalingVals[3] * (ilp[c]  + rp[mc]) + scalingVals[2] * (lp[mc] + ilp[c - 1]);
 						c++;  // increment interleaved channel
 						mc++; // increment mono channel
 					}

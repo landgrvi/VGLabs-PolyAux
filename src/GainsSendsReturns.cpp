@@ -23,7 +23,7 @@ void GainsSendsReturns::process(const ProcessArgs &args) {
 	expMessage* leftSource = (expMessage*)(leftExpander.consumerMessage); // this is mine; my leftExpander.producer message is written by the leftward module, which requests flip
 
 	
-/* This should all be ordered to logically process the audio:
+/* This is ordered to logically process the audio:
  * get pregain from left (if there's a left)
  * send pregain to right (if there's a right)
  * apply gains and push audio to send ports
@@ -65,7 +65,7 @@ void GainsSendsReturns::process(const ProcessArgs &args) {
 		rightSink->masterPanMode = masterPanMode;
 		soloTracks = rightSource->soloTotal; // total from rightmost module
 		numModules = rightSource->numModulesTotal; // total from rightmost module
-	} else { // I'm the rightmost. Close the loop!
+	} else { // I'm the rightmost. Close the loop.
 		soloTracks = soloToRight;
 		numModules = numMe;
 	}
@@ -75,7 +75,7 @@ void GainsSendsReturns::process(const ProcessArgs &args) {
 
 	//if there's no leftward module, no reason to process return audio or to load wet audio since there's nowhere to send it
 	if (expandsLeftward) {
-		returnInput.pullAudio((!muteMe && (soloMe || (soloTracks == 0))) ? true : false);
+		returnInput.pullAudio(((!muteMe && (soloMe || (soloTracks == 0))) ? true : false), monoInputMode);
 		
 		if (expandsRightward) {
 			wetAudio.setAudio(rightSource->wetAudio);
@@ -109,14 +109,6 @@ void GainsSendsReturns::process(const ProcessArgs &args) {
 		//DEBUG("%li %f", id, debugValue);
 		//DEBUG("%li numModules:%i", id, numModules);
 	}
-
 } //process
 
-struct GainsSendsReturnsWidget : Aux8Widget<GainsSendsReturns> {
-	
-	GainsSendsReturnsWidget(GainsSendsReturns* module) : Aux8Widget<GainsSendsReturns>(module, "res/GainsSendsReturns_6hp_Plus.svg") { }
-
-};
-
-Model* modelGainsSendsReturns = createModel<GainsSendsReturns, GainsSendsReturnsWidget>("GainsSendsReturns");
 

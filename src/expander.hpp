@@ -14,17 +14,4 @@ struct expMessage { // contains both directions
 	unsigned int numModulesTotal = 0;
 };
 
-// Find a PanelBorder instance in the given widget's children - from MindMeldModular I'm pretty sure
-inline PanelBorder* findBorder(Widget* widget) {
-	for (auto it = widget->children.begin(); it != widget->children.end(); ) {
-		PanelBorder *bwChild = dynamic_cast<PanelBorder*>(*it);
-		if (bwChild) {
-			return bwChild;
-		}
-		else {
-			++it;
-		}
-	}
-	return NULL;
-}
 

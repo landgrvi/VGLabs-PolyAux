@@ -3,6 +3,7 @@
 #include "components.hpp"
 #include "expander.hpp"
 #include "polyaux.hpp"
+#include "helpers.hpp"
 
 using namespace rack;
 
@@ -14,3 +15,6 @@ extern Model* modelMyModule;
 extern Model* modelInsOutsGains;
 extern Model* modelGainsSendsReturns;
 extern Model* modelOuts;
+
+
+
