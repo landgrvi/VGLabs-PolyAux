@@ -3,7 +3,7 @@
 using namespace rack;
 
 // From MindMeldModular GenericComponents.cpp
-
+/*
 void drawRectHalo(const Widget::DrawArgs &args, Vec boxSize, NVGcolor haloColor, float posX) {
 	// some of the code in this block is adapted from LightWidget::drawHalo() and the composite call is from LightWidget::drawLayer()
 	
@@ -55,7 +55,7 @@ void drawRoundHalo(const Widget::DrawArgs &args, Vec boxSize, NVGcolor haloColor
 	
 	nvgGlobalCompositeOperation(args.vg, NVG_SOURCE_OVER);
 }
-
+*/
 // End direct copy from MindMeldModular
 
 // Adapted from MindMeldModular GenericComponents.cpp
@@ -100,3 +100,4 @@ void drawRoundedRectHalo(const Widget::DrawArgs &args, Vec boxSize, NVGcolor hal
 	
 	nvgGlobalCompositeOperation(args.vg, NVG_SOURCE_OVER);
 }
+

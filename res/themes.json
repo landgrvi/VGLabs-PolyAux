@@ -1,0 +1,58 @@
+[
+    {
+        "name": "BlueGreenPurple",
+        "theme": {
+            "panel": {
+                "fill": {
+                    "gradient": [
+                        { "index": 0, "color": "#16502d", "offset": 0 },
+                        { "index": 1, "color": "#163650", "offset": 1 }
+                    ]
+				}
+            },
+            "outbg": {
+				"fill": "#461621"
+			},
+            "logodark": {
+				"fill": "#461621"
+			},
+            "logopale": {
+				"fill": "#855560"
+			},
+            "filldark": {
+				"fill": "#461621"
+			},
+            "strokedark": {
+				"stroke": "#461621"
+			}
+        }
+    },
+    {
+        "name": "Grey",
+        "theme": {
+            "panel": {
+                "fill": {
+                    "gradient": [
+                        { "index": 0, "color": "#777777", "offset": 0 },
+                        { "index": 1, "color": "#555555", "offset": 1 }
+                    ]
+				}
+            },
+            "outbg": {
+				"fill": "#333333"
+			},
+            "logodark": {
+				"fill": "#222222"
+			},
+            "logopale": {
+				"fill": "#999999"
+			},
+            "filldark": {
+				"fill": "#222222"
+			},
+            "strokedark": {
+				"stroke": "#222222"
+			}
+        }
+    }
+]

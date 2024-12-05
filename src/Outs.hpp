@@ -2,10 +2,11 @@
 
 #include "plugin.hpp"
 #include "InsOutsGains.hpp"
+#include "PachdeThemedModule.hpp"
 
 using namespace rack;
 
-struct Outs : Module {
+struct Outs : PachdeThemedModule {
 	enum ParamId {
 		PARAMS_LEN
 	};
@@ -33,6 +34,7 @@ struct Outs : Module {
 	
 	comboAudioOut pregainOutput; // from right module, to output ports
 	comboAudio wetAudio; // from right module, to output ports
+
 	
     Outs() ;
 	inline bool calcLeftExpansion() { return false; }
@@ -40,10 +42,9 @@ struct Outs : Module {
 	void process(const ProcessArgs &args) override ;
 }; // Outs
 
-struct OutsWidget : ModuleWidget {
+struct OutsWidget : PachdeThemedModuleWidget {
 	
 	PanelBorder* panelBorder;
-
 	OutsWidget(Outs* module) ;
 	void draw(const DrawArgs& args) override ;
 	void step() override ;

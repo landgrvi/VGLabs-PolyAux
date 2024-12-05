@@ -1,11 +1,12 @@
 #pragma once
 
 #include "plugin.hpp"
+#include "PachdeThemedModule.hpp"
 
 using namespace rack;
 
 template<typename TModule>
-struct Aux8 : Module {
+struct Aux8 : PachdeThemedModule {
 
     float debugValue = 0;
 	float blinkPhase = 0;
@@ -39,7 +40,8 @@ struct Aux8 : Module {
 	expMessage leftMessages[2][1]; // messages to & from left module
 	expMessage rightMessages[2][1]; // messages to & from right module
 	
-    Aux8() {
+    Aux8() : PachdeThemedModule("res/themes.json") {
+		//defaultTheme = "BlueGreenPurple";
 		config(TModule::PARAMS_LEN, TModule::INPUTS_LEN, TModule::OUTPUTS_LEN, TModule::LIGHTS_LEN);
 		char strBuf[32];
 		for (unsigned int i = 0; i < 8; i++) {
@@ -111,7 +113,7 @@ struct Aux8 : Module {
 		if (changed) {
 			returnInput.setScaling(trackPanVals, rl);
 		}
-		//don't have to do these every time, but would it save anything to check?
+		//probably should be done by a button event?
 		soloMe = params[TModule::SOLO_PARAM].getValue();
 		muteMe = params[TModule::MUTE_PARAM].getValue();
 	} //updateGains
@@ -125,63 +127,77 @@ struct Aux8 : Module {
 	}
 
 	json_t* dataToJson() override {
-		json_t* rootJ = json_object();
+		json_t* rootJ = PachdeThemedModule::dataToJson();
 		json_object_set_new(rootJ, "returnPanMode", json_integer(returnPanMode));
 		json_object_set_new(rootJ, "monoInputMode", json_integer(monoInputMode));
 		return rootJ;
-	}
+	} // dataToJson
 
 	void dataFromJson(json_t* rootJ) override {
+		PachdeThemedModule::dataFromJson(rootJ);
 		json_t* returnPanModeJ = json_object_get(rootJ, "returnPanMode");
 		if (returnPanModeJ)
 			returnPanMode = json_integer_value(returnPanModeJ);
 		json_t* monoInputModeJ = json_object_get(rootJ, "monoInputMode");
 		if (monoInputModeJ)
 			monoInputMode = json_integer_value(monoInputModeJ);
-	}
+	} // dataFromJson
 
 	void onReset(const ResetEvent& e) override {
 		Module::onReset(e);
 		returnPanMode = 0;
 		monoInputMode = 1;
-	}	
+	} // onReset
 }; // Aux8	
 
+inline float px2mm(float f) { return f * 25.4 / 75; }  // https://community.vcvrack.com/t/in-what-ways-will-rack-v2-require-the-use-of-mm-units-for-drawing/10473/4
+
 template<typename TModule>
-struct Aux8Widget : ModuleWidget {
+struct Aux8Widget : PachdeThemedModuleWidget {
 	
 	PanelBorder* panelBorder;
 
-	Aux8Widget(TModule* module, std::string panelFile) {
+	Aux8Widget(TModule* module, std::string panelFile) : PachdeThemedModuleWidget(module, panelFile) {
 		setModule(module);
-		setPanel(createPanel(asset::plugin(pluginInstance, panelFile)));
 		SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 		panelBorder = findBorder(svgPanel->fb);
 		
-		// Penultimate column: Gains and mutes per channel
+		// Penultimate column: Gains / mutes per channel
 		float xpos = 0;
 		float ypos = 15;
-		xpos = box.pos.x + box.size.x - 65;
+		xpos = px2mm(box.size.x - 65);
 		for (unsigned int i = 0; i < 8; i++) {
-			addParam(createParamCentered<ChickenHeadKnobIvory>(Vec(xpos, mm2px(ypos+(14*i))), module, TModule::GAIN_PARAMS + i));
-			addParam(createLightParamCentered<GreenRedLightLatch>(Vec(xpos, mm2px(ypos+(14*i))), module, TModule::MUTE_PARAMS + i, TModule::MUTE_LIGHTS + (i * 2)));
+			addParam(createParamCentered<ChickenHeadKnobIvory>(mm2px(Vec(xpos, ypos+(14*i))), module, TModule::GAIN_PARAMS + i));
+			addParam(createLightParamCentered<GreenRedLightLatch>(mm2px(Vec(xpos, ypos+(14*i))), module, TModule::MUTE_PARAMS + i, TModule::MUTE_LIGHTS + (i * 2)));
 		}
 		
 		// Last column: Sends & Returns
-		xpos = box.pos.x + box.size.x - 28;
-		addOutput(createOutputCentered<WhiteRedPJ301MPort>(Vec(xpos, box.pos.y + mm2px(ypos)), module, TModule::INTERLEAVED_SEND));
-		addOutput(createOutputCentered<WhitePJ301MPort>(Vec(xpos, box.pos.y + mm2px(ypos + 9)), module, TModule::LEFT_SEND));
-		addOutput(createOutputCentered<RedPJ301MPort>(Vec(xpos, box.pos.y + mm2px(ypos + 18)), module, TModule::RIGHT_SEND));
+		xpos = px2mm(box.size.x - 28);
+		ypos = 13.4;
+		addOutput(createOutputCentered<WhiteRedPJ301MPort>(mm2px(Vec(xpos, ypos)), module, TModule::INTERLEAVED_SEND));
+		addOutput(createOutputCentered<WhitePJ301MPort>(mm2px(Vec(xpos, ypos + 9)), module, TModule::LEFT_SEND));
+		addOutput(createOutputCentered<RedPJ301MPort>(mm2px(Vec(xpos, ypos + 18)), module, TModule::RIGHT_SEND));
 		
-		addInput(createInputCentered<WhiteRedPJ301MPort>(Vec(xpos, box.pos.y + mm2px(ypos + 32)), module, TModule::INTERLEAVED_RETURN));
-		addInput(createInputCentered<WhitePJ301MPort>(Vec(xpos, box.pos.y + mm2px(ypos + 41)), module, TModule::LEFT_RETURN));
-		addInput(createInputCentered<RedPJ301MPort>(Vec(xpos, box.pos.y + mm2px(ypos + 50)), module, TModule::RIGHT_RETURN));
+		ypos = 15;
+		addInput(createInputCentered<WhiteRedPJ301MPort>(mm2px(Vec(xpos, ypos + 32)), module, TModule::INTERLEAVED_RETURN));
+		addInput(createInputCentered<WhitePJ301MPort>(mm2px(Vec(xpos, ypos + 41)), module, TModule::LEFT_RETURN));
+		addInput(createInputCentered<RedPJ301MPort>(mm2px(Vec(xpos, ypos + 50)), module, TModule::RIGHT_RETURN));
 
-		addParam(createParamCentered<ChickenHeadKnobIvory>(Vec(xpos, mm2px(ypos + 63)), module, TModule::RETURN_PAN_PARAM));
-		addParam(createParamCentered<VGLabsSlider>(Vec(xpos, box.pos.y + mm2px(95.5)), module, TModule::RETURN_GAIN_PARAM));
-		addParam(createParamCentered<btnMute>(Vec(xpos, box.pos.y + mm2px(110)), module, TModule::MUTE_PARAM));
-		addParam(createParamCentered<btnSolo>(Vec(xpos, box.pos.y + mm2px(116)), module, TModule::SOLO_PARAM));
-	}
+		addParam(createParamCentered<ChickenHeadKnobIvory>(mm2px(Vec(xpos, ypos + 65)), module, TModule::RETURN_PAN_PARAM));
+		addParam(createParamCentered<VGLabsSlider>(mm2px(Vec(xpos, 97)), module, TModule::RETURN_GAIN_PARAM));
+		addParam(createParamCentered<btnMute>(mm2px(Vec(xpos, 110)), module, TModule::MUTE_PARAM));
+		addParam(createParamCentered<btnSolo>(mm2px(Vec(xpos, 116)), module, TModule::SOLO_PARAM));
+
+        // The preferred procedure is to subclass any widget you want to theme,
+        // implementing IApplyTheme (which is quite simple to do in most cases),
+        // and use this helper to apply the theme to the widget hierarchy.
+		if (my_module) {
+			auto themes = my_module->getThemes();
+			auto theme = my_module->getTheme();
+			auto svg_theme = themes.getTheme(theme);
+			if (svg_theme) ApplyChildrenTheme(this, themes, svg_theme);
+		}
+	} // constructor
 
 	void draw(const DrawArgs& args) override {
 		if (module) {
@@ -189,12 +205,12 @@ struct Aux8Widget : ModuleWidget {
 			if (module->calcRightExpansion()) {
 				DrawArgs newDrawArgs = args;
 				newDrawArgs.clipBox.size.x += mm2px(0.3f); // panels have their base rectangle this much larger, to kill gap artifacts
-				ModuleWidget::draw(newDrawArgs);
+				PachdeThemedModuleWidget::draw(newDrawArgs);
 			} else {
-				ModuleWidget::draw(args);
+				PachdeThemedModuleWidget::draw(args);
 			}
 		} else {
-			ModuleWidget::draw(args);
+			PachdeThemedModuleWidget::draw(args);
 		}
 	} // draw
 	
@@ -203,7 +219,8 @@ struct Aux8Widget : ModuleWidget {
 		if (module->model != modelInsOutsGains) menu->addChild(new MenuSeparator);
 		menu->addChild(createIndexPtrSubmenuItem("Return Pan", {"Use Master (default)", "True Pan (L + R)", "Linear Attenuation", "3dB boost (constant power)", "4.5dB Boost (compromise)", "6dB Boost (linear)"}, &module->returnPanMode));
 		menu->addChild(createIndexPtrSubmenuItem("Mono Input", {"Do Nothing", "Copy L to R (default)"}, &module->monoInputMode));
-	}
+		PachdeThemedModuleWidget::appendContextMenu(menu);
+	} // appendContextMenu
 	
 	void step() override {
 		if (module) {
@@ -218,11 +235,9 @@ struct Aux8Widget : ModuleWidget {
 				SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 				svgPanel->fb->dirty = true;
 			}
-			//module->lights[TModule::SOLO_LIGHT].setBrightness(module->soloMe = module->params[TModule::SOLO_PARAM].getValue());
-			//module->lights[TModule::MUTE_LIGHT].setBrightness(module->muteMe = module->params[TModule::MUTE_PARAM].getValue());
 		}
-		ModuleWidget::step();
-	}
+		PachdeThemedModuleWidget::step();
+	} // step
 }; // Aux8Widget
 
 //From MindMeldModular MixerWidgets.hpp

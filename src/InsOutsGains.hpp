@@ -50,7 +50,7 @@ struct InsOutsGains : Aux8<InsOutsGains> {
 		LIGHTS_LEN
 	};
 	
-	LedDisplayTextFieldRoundedRect<InsOutsGains>* trackLabels[8];
+	LedDisplayLimitedTextField<InsOutsGains>* trackLabels[8];
 	char trackLabelChars[33] = "-01--02--03--04--05--06--07--08-";
 	bool loadLabels = true;
 	float masterPanVals[4] = {1.f, 0.f, 0.f, 1.f};

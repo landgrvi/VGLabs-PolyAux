@@ -2,7 +2,9 @@
 #include "InsOutsGains.hpp"
 #include "Outs.hpp"
 
-Outs::Outs() {
+Outs::Outs() : PachdeThemedModule("res/themes.json") {
+	//defaultTheme = "BlueGreenPurple";
+	DEBUG("%s", defaultTheme.c_str());
 	config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
 	char strBuf[32];
 	configOutput(INTERLEAVED_PREGAIN_OUTPUT, "Interleaved pre-gain");
@@ -20,7 +22,7 @@ Outs::Outs() {
 	
 	rightExpander.producerMessage = rightMessages[0];
 	rightExpander.consumerMessage = rightMessages[1];
-
+	
 } // Outs constructor
 
 void Outs::process(const ProcessArgs &args) {
@@ -45,18 +47,20 @@ void Outs::process(const ProcessArgs &args) {
 			
 } // process
 
-OutsWidget::OutsWidget(Outs* module) {
+OutsWidget::OutsWidget(Outs* module) : PachdeThemedModuleWidget(module, "res/Outs_4hp_Plus.svg") {
 	setModule(module);
-	setPanel(createPanel(asset::plugin(pluginInstance, "res/Outs_4hp_Plus.svg")));
 	SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 	panelBorder = findBorder(svgPanel->fb);
-	addOutput(createOutputCentered<WhiteRedPJ301MPort>(mm2px(Vec(10.2, 12)), module, Outs::INTERLEAVED_PREGAIN_OUTPUT));
-	addOutput(createOutputCentered<WhitePJ301MPort>(mm2px(Vec(10.2, 21)), module, Outs::LEFT_PREGAIN_OUTPUT));
-	addOutput(createOutputCentered<RedPJ301MPort>(mm2px(Vec(10.2, 30)), module, Outs::RIGHT_PREGAIN_OUTPUT));
+	float xpos = 10.2;
+	float ypos = 13.4;
+	addOutput(createOutputCentered<WhiteRedPJ301MPort>(mm2px(Vec(xpos, ypos)), module, Outs::INTERLEAVED_PREGAIN_OUTPUT));
+	addOutput(createOutputCentered<WhitePJ301MPort>(mm2px(Vec(xpos, ypos + 9)), module, Outs::LEFT_PREGAIN_OUTPUT));
+	addOutput(createOutputCentered<RedPJ301MPort>(mm2px(Vec(xpos, ypos + 18)), module, Outs::RIGHT_PREGAIN_OUTPUT));
 	for (unsigned int i = 0; i < 16; i += 2) {
-		addOutput(createOutputCentered<WhitePJ301MPort>(mm2px(Vec(6, 43 + (i * 4.5))), module, Outs::WET_OUTPUTS + i));
-		addOutput(createOutputCentered<RedPJ301MPort>(mm2px(Vec(14.4, 43 + (i * 4.5))), module, Outs::WET_OUTPUTS + i + 1));
+		addOutput(createOutputCentered<WhitePJ301MPort>(mm2px(Vec(6, 48.5 + (i * 4.5))), module, Outs::WET_OUTPUTS + i));
+		addOutput(createOutputCentered<RedPJ301MPort>(mm2px(Vec(14.4, 48.5 + (i * 4.5))), module, Outs::WET_OUTPUTS + i + 1));
 	}
+
 } // OutsWidget constructor
 
 void OutsWidget::draw(const DrawArgs& args) {
@@ -65,12 +69,12 @@ void OutsWidget::draw(const DrawArgs& args) {
 		if (module->calcRightExpansion()) {
 			DrawArgs newDrawArgs = args;
 			newDrawArgs.clipBox.size.x += mm2px(0.3f); // panels have their base rectangle this much larger, to kill gap artifacts
-			ModuleWidget::draw(newDrawArgs);
+			PachdeThemedModuleWidget::draw(newDrawArgs);
 		} else {
-			ModuleWidget::draw(args);
+			PachdeThemedModuleWidget::draw(args);
 		}
 	} else {
-		ModuleWidget::draw(args);
+		PachdeThemedModuleWidget::draw(args);
 	}
 } // draw
 
@@ -87,7 +91,7 @@ void OutsWidget::step()	{
 			svgPanel->fb->dirty = true;
 		}
 	}
-	ModuleWidget::step();
+	PachdeThemedModuleWidget::step();
 }
 	
 Model* modelOuts = createModel<Outs, OutsWidget>("Outs");
