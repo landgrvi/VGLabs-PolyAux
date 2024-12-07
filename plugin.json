@@ -1,6 +1,6 @@
 {
-  "slug": "VGLabs",
-  "name": "VGLabs",
+  "slug": "VGLabs-PolyAux",
+  "name": "PolyAux",
   "version": "2.0.0",
   "license": "GPL-3.0-or-later",
   "brand": "VGLabs",
@@ -18,15 +18,17 @@
       "name": "PolyAux 8-channel Base",
       "description": "PolyAux 8-channel base with 1 effects loop",
       "tags": [
-        "Polyphonic"
+        "Polyphonic",
+        "Utility"
       ]
     },
     {
       "slug": "Loop8",
       "name": "PolyAux 8-channel Loop",
-      "description": "PolyAux 8-channel loop expander (goes on right side of base or loop)",
+      "description": "PolyAux 8-channel effects loop expander (goes on right side of base or loop)",
       "tags": [
-        "Polyphonic"
+        "Polyphonic",
+        "Utility"
       ]
     },
     {
@@ -34,7 +36,8 @@
       "name": "PolyAux 8-channel Outputs",
       "description": "PolyAux 8-channel additional output expander (goes on left side of base)",
       "tags": [
-        "Polyphonic"
+        "Polyphonic",
+        "Utility"
       ]
     }
   ]
