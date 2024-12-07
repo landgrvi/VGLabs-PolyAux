@@ -11,10 +11,9 @@ using namespace rack;
 extern Plugin* pluginInstance;
 
 // Declare each Model, defined in each module source file
-extern Model* modelMyModule;
-extern Model* modelInsOutsGains;
-extern Model* modelGainsSendsReturns;
-extern Model* modelOuts;
+extern Model* modelBaseLoop8;
+extern Model* modelLoop8;
+extern Model* modelOuts8;
 
 
 

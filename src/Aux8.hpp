@@ -122,11 +122,11 @@ struct Aux8 : PachdeThemedModule {
 	} //updateGains
 	
 	virtual inline bool calcLeftExpansion() {
-		return leftExpander.module && (leftExpander.module->model == modelGainsSendsReturns || leftExpander.module->model == modelInsOutsGains);
+		return leftExpander.module && (leftExpander.module->model == modelLoop8 || leftExpander.module->model == modelBaseLoop8);
 	}
 
 	virtual inline bool calcRightExpansion() {
-		return rightExpander.module && rightExpander.module->model == modelGainsSendsReturns;
+		return rightExpander.module && rightExpander.module->model == modelLoop8;
 	}
 
 	json_t* dataToJson() override {
@@ -193,17 +193,13 @@ struct Aux8Widget : PachdeThemedModuleWidget {
 		addParam(createParamCentered<btnMute>(mm2px(Vec(xpos, 110)), module, TModule::MUTE_PARAM));
 		addParam(createParamCentered<btnSolo>(mm2px(Vec(xpos, 116)), module, TModule::SOLO_PARAM));
 
-        // The preferred procedure is to subclass any widget you want to theme,
-        // implementing IApplyTheme (which is quite simple to do in most cases),
-        // and use this helper to apply the theme to the widget hierarchy.
-        /*
+        // Apply theme to components
 		if (my_module) {
 			auto themes = my_module->getThemes();
 			auto theme = my_module->getTheme();
 			auto svg_theme = themes.getTheme(theme);
 			if (svg_theme) ApplyChildrenTheme(this, themes, svg_theme);
 		}
-		*/
 	} // constructor
 
 	void draw(const DrawArgs& args) override {
@@ -223,7 +219,7 @@ struct Aux8Widget : PachdeThemedModuleWidget {
 	
 	void appendContextMenu(Menu* menu) override {
 		TModule* module = getModule<TModule>();
-		if (module->model != modelInsOutsGains) menu->addChild(new MenuSeparator);
+		if (module->model != modelBaseLoop8) menu->addChild(new MenuSeparator);
 		menu->addChild(createIndexPtrSubmenuItem("Return Pan", {"Use Master (default)", "True Pan (L + R)", "Linear Attenuation", "3dB boost (constant power)", "4.5dB Boost (compromise)", "6dB Boost (linear)"}, &module->returnPanMode));
 		menu->addChild(createIndexPtrSubmenuItem("Mono Input", {"Do Nothing", "Copy L to R (default)"}, &module->monoInputMode));
 		PachdeThemedModuleWidget::appendContextMenu(menu);
@@ -246,90 +242,4 @@ struct Aux8Widget : PachdeThemedModuleWidget {
 		PachdeThemedModuleWidget::step();
 	} // step
 }; // Aux8Widget
-
-//From MindMeldModular MixerWidgets.hpp
-// Editable track, group and aux displays base struct
-// --------------------
-/*
-struct EditableDisplayBase : LedDisplayTextField {
-	int numChars = 4;
-	bool doubleClick = false;
-	Widget* tabNextFocus = nullptr;
-	PackedBytes4* colorAndCloak = nullptr;
-	int8_t* dispColorLocal = nullptr;
-
-	EditableDisplayBase() {
-		box.size = mm2px(Vec(12.0f, 5.0f));// svg is 10.6 wide
-		textOffset = mm2px(Vec(0.0f, -0.9144));  // was Vec(6.0f, -2.7f); which is 2.032000, -0.914400 in mm
-		text = "-00-";
-		// DEBUG("%f, %f", 9.0f * MM_PER_IN / SVG_DPI, -2.0 * MM_PER_IN / SVG_DPI);
-	};
-	
-	void draw(const DrawArgs &args) override {}	// don't want background, which is in draw, actual text is in drawLayer
-	
-	void drawLayer(const DrawArgs &args, int layer) override {
-		if (layer == 1) {
-			if (colorAndCloak) {
-				int colorIndex = colorAndCloak->cc4[dispColorGlobal] < 7 ? colorAndCloak->cc4[dispColorGlobal] : *dispColorLocal;
-				color = DISP_COLORS[colorIndex];
-			}
-			if (cursor > numChars) {
-				text.resize(numChars);
-				cursor = numChars;
-				selection = numChars;
-			}
-			// nvgBeginPath(args.vg);
-			// nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
-			// nvgFillColor(args.vg, nvgRGBAf(0.0f, 0.0f, 0.8f, 1.0f));
-			// nvgFill(args.vg);		
-		}
-		LedDisplayTextField::drawLayer(args, layer);
-	}
-
-	void onSelectKey(const event::SelectKey& e) override {
-		if (e.action == GLFW_PRESS && e.key == GLFW_KEY_TAB && tabNextFocus != NULL) {
-			APP->event->setSelectedWidget(tabNextFocus);
-			e.consume(this);
-			return;			
-		}
-		LedDisplayTextField::onSelectKey(e);
-	}
-	
-	// don't want spaces since leading spaces are stripped by nanovg (which oui-blendish calls), so convert to dashes
-	void onSelectText(const event::SelectText &e) override {
-		if (e.codepoint < 128) {
-			char letter = (char) e.codepoint;
-			if (letter == 0x20) {// space
-				letter = 0x2D;// hyphen
-			}
-			std::string newText(1, letter);
-			insertText(newText);
-		}
-		e.consume(this);	
-		
-		if (text.length() > (unsigned)numChars) {
-			text = text.substr(0, numChars);
-			if (cursor > numChars) {
-				cursor = numChars;
-			}
-			selection = cursor;
-		}
-	}
-	
-	void onDoubleClick(const event::DoubleClick& e) override {
-		doubleClick = true;
-	}
-	
-	void onButton(const event::Button &e) override {
-		if (e.button == GLFW_MOUSE_BUTTON_LEFT && e.action == GLFW_RELEASE) {
-			if (doubleClick) {
-				doubleClick = false;
-				selectAll();
-			}
-		}
-		LedDisplayTextField::onButton(e);
-	}
-};
-*/
-// End direct copy from MindMeldModular
 

@@ -5,7 +5,7 @@
 
 using namespace rack;
 
-struct InsOutsGains : Aux8<InsOutsGains> {
+struct BaseLoop8 : Aux8<BaseLoop8> {
 	enum ParamId {
 		MASTER_PAN_PARAM,
 		MASTER_GAIN_PARAM,
@@ -54,7 +54,7 @@ struct InsOutsGains : Aux8<InsOutsGains> {
 		LIGHTS_LEN
 	};
 	
-	LedDisplayLimitedTextField<InsOutsGains>* trackLabels[8];
+	LedDisplayLimitedTextField<BaseLoop8>* trackLabels[8];
 	char trackLabelChars[33] = "-01--02--03--04--05--06--07--08-";
 	bool loadLabels = true;
 	float masterPanVals[4] = {1.f, 0.f, 0.f, 1.f};
@@ -75,7 +75,7 @@ struct InsOutsGains : Aux8<InsOutsGains> {
 
 	comboAudioBlended returnAndFirstWithWet;
 	
-	InsOutsGains() ;
+	BaseLoop8() ;
 	void process(const ProcessArgs &args) override ;
 	inline bool calcLeftExpansion() override ;
 	void updateGains() override ;
@@ -84,11 +84,11 @@ struct InsOutsGains : Aux8<InsOutsGains> {
 	void onReset(const ResetEvent& e) override ;
 };
 
-struct InsOutsGainsWidget : Aux8Widget<InsOutsGains> {
+struct BaseLoop8Widget : Aux8Widget<BaseLoop8> {
 	unsigned int oldModules = 0;
 	Label* labelTotal;
 
-	InsOutsGainsWidget(InsOutsGains* module) ;
+	BaseLoop8Widget(BaseLoop8* module) ;
 	void appendContextMenu(Menu* menu) override ;
 	void step() override ;
 };

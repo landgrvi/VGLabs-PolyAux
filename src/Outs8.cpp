@@ -1,8 +1,8 @@
 #include "plugin.hpp"
-#include "InsOutsGains.hpp"
-#include "Outs.hpp"
+#include "BaseLoop8.hpp"
+#include "Outs8.hpp"
 
-Outs::Outs() : PachdeThemedModule("res/themes.json", "BlueGreenPurple") {
+Outs8::Outs8() : PachdeThemedModule("res/themes.json", "BlueGreenPurple") {
 	//defaultTheme = "BlueGreenPurple";
 	DEBUG("%s", defaultTheme.c_str());
 	config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
@@ -23,9 +23,9 @@ Outs::Outs() : PachdeThemedModule("res/themes.json", "BlueGreenPurple") {
 	rightExpander.producerMessage = rightMessages[0];
 	rightExpander.consumerMessage = rightMessages[1];
 	
-} // Outs constructor
+} // Outs8 constructor
 
-void Outs::process(const ProcessArgs &args) {
+void Outs8::process(const ProcessArgs &args) {
 	expandsRightward = calcRightExpansion();
 	if (expandsRightward) {
 		expMessage* rightSink = (expMessage*)(rightExpander.module->leftExpander.producerMessage); // this is the rightward module's; I write to it and request flip
@@ -50,25 +50,25 @@ void Outs::process(const ProcessArgs &args) {
 			
 } // process
 
-OutsWidget::OutsWidget(Outs* module) : PachdeThemedModuleWidget(module, "res/Outs_4hp_Plus.svg") {
+Outs8Widget::Outs8Widget(Outs8* module) : PachdeThemedModuleWidget(module, "res/Outs8_4hp_Plus.svg") {
 	setModule(module);
 	SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 	panelBorder = findBorder(svgPanel->fb);
 	float xpos = 10.2;
 	float ypos = 13.4;
-	addOutput(createOutputCentered<WhiteRedPJ301MPort>(mm2px(Vec(xpos, ypos)), module, Outs::INTERLEAVED_PREGAIN_OUTPUT));
-	addOutput(createOutputCentered<WhitePJ301MPort>(mm2px(Vec(xpos, ypos + 9)), module, Outs::LEFT_PREGAIN_OUTPUT));
-	addOutput(createOutputCentered<RedPJ301MPort>(mm2px(Vec(xpos, ypos + 18)), module, Outs::RIGHT_PREGAIN_OUTPUT));
+	addOutput(createOutputCentered<WhiteRedPJ301MPort>(mm2px(Vec(xpos, ypos)), module, Outs8::INTERLEAVED_PREGAIN_OUTPUT));
+	addOutput(createOutputCentered<WhitePJ301MPort>(mm2px(Vec(xpos, ypos + 9)), module, Outs8::LEFT_PREGAIN_OUTPUT));
+	addOutput(createOutputCentered<RedPJ301MPort>(mm2px(Vec(xpos, ypos + 18)), module, Outs8::RIGHT_PREGAIN_OUTPUT));
 	for (unsigned int i = 0; i < 16; i += 2) {
-		addOutput(createOutputCentered<WhitePJ301MPort>(mm2px(Vec(6, 48.5 + (i * 4.5))), module, Outs::WET_OUTPUTS + i));
-		addOutput(createOutputCentered<RedPJ301MPort>(mm2px(Vec(14.4, 48.5 + (i * 4.5))), module, Outs::WET_OUTPUTS + i + 1));
+		addOutput(createOutputCentered<WhitePJ301MPort>(mm2px(Vec(6, 48.5 + (i * 4.5))), module, Outs8::WET_OUTPUTS + i));
+		addOutput(createOutputCentered<RedPJ301MPort>(mm2px(Vec(14.4, 48.5 + (i * 4.5))), module, Outs8::WET_OUTPUTS + i + 1));
 	}
 
-} // OutsWidget constructor
+} // Outs8Widget constructor
 
-void OutsWidget::draw(const DrawArgs& args) {
+void Outs8Widget::draw(const DrawArgs& args) {
 	if (module) {
-		Outs* module = static_cast<Outs*>(this->module);
+		Outs8* module = static_cast<Outs8*>(this->module);
 		if (module->calcRightExpansion()) {
 			DrawArgs newDrawArgs = args;
 			newDrawArgs.clipBox.size.x += mm2px(0.3f); // panels have their base rectangle this much larger, to kill gap artifacts
@@ -81,9 +81,9 @@ void OutsWidget::draw(const DrawArgs& args) {
 	}
 } // draw
 
-void OutsWidget::step()	{
+void Outs8Widget::step()	{
 	if (module) {
-		Outs* module = static_cast<Outs*>(this->module);
+		Outs8* module = static_cast<Outs8*>(this->module);
 		// Hide borders to show expansion
 		int leftShift = (module->calcLeftExpansion() ? 3 : 0);
 		int rightEnlarge = (module->calcRightExpansion() ? 4 : 0);
@@ -97,7 +97,7 @@ void OutsWidget::step()	{
 	PachdeThemedModuleWidget::step();
 }
 	
-Model* modelOuts = createModel<Outs, OutsWidget>("Outs");
+Model* modelOuts8 = createModel<Outs8, Outs8Widget>("Outs8");
 
 
 

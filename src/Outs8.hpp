@@ -1,12 +1,12 @@
 #pragma once
 
 #include "plugin.hpp"
-#include "InsOutsGains.hpp"
+#include "BaseLoop8.hpp"
 #include "PachdeThemedModule.hpp"
 
 using namespace rack;
 
-struct Outs : PachdeThemedModule {
+struct Outs8 : PachdeThemedModule {
 	enum ParamId {
 		PARAMS_LEN
 	};
@@ -36,17 +36,17 @@ struct Outs : PachdeThemedModule {
 	comboAudio wetAudio; // from right module, to output ports
 
 	
-    Outs() ;
+    Outs8() ;
 	inline bool calcLeftExpansion() { return false; }
-	inline bool calcRightExpansion() { return rightExpander.module && rightExpander.module->model == modelInsOutsGains; }
+	inline bool calcRightExpansion() { return rightExpander.module && rightExpander.module->model == modelBaseLoop8; }
 	void process(const ProcessArgs &args) override ;
-}; // Outs
+}; // Outs8
 
-struct OutsWidget : PachdeThemedModuleWidget {
+struct Outs8Widget : PachdeThemedModuleWidget {
 	
 	PanelBorder* panelBorder;
-	OutsWidget(Outs* module) ;
+	Outs8Widget(Outs8* module) ;
 	void draw(const DrawArgs& args) override ;
 	void step() override ;
-}; // OutsWidget
+}; // Outs8Widget
 

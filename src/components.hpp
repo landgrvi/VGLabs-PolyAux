@@ -82,7 +82,7 @@ struct WhiteRedPJ301MPort : SvgPort {
 };
 
 
-// Derived from MMM GenericComponents.hpp:
+// Derived from MindMeldModular GenericComponents.hpp:
 void drawRoundedRectHalo(const Widget::DrawArgs &args, Vec boxSize, NVGcolor haloColor);
 
 struct SvgButtonWithRoundedRectHalo : SvgSwitch, svg_theme::IApplyTheme {
@@ -94,7 +94,6 @@ struct SvgButtonWithRoundedRectHalo : SvgSwitch, svg_theme::IApplyTheme {
 	
 	// derived classes must set up
 	NVGcolor haloColor = nvgRGB(0xFF, 0xFF, 0xFF);// this should match the color of fill of the on button
-	//bool isRect = false;
 
 	SvgButtonWithRoundedRectHalo(std::array<std::string, 2> files) {
 		filenames = files;
@@ -156,7 +155,7 @@ struct btnSolo : SvgButtonWithRoundedRectHalo {
 
 };
 
-// from Svg.cpp
+// from Rack's Svg.cpp
 static NVGcolor getNVGColor(uint32_t color) {
 	return nvgRGBA(
 		(color >> 0) & 0xff,

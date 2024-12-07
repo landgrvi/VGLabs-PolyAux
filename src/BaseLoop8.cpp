@@ -1,15 +1,13 @@
 #include "plugin.hpp"
-#include "InsOutsGains.hpp"
-#include "Outs.hpp"
-#include <window/Window.hpp>
-#include <window/Svg.hpp>
+#include "BaseLoop8.hpp"
+#include "Outs8.hpp"
 
 using namespace rack;
 using namespace window;
 
-//InsOutsGains : Module declared in InsOutsGains.hpp, base clase in Aux8.hpp
+//BaseLoop8 : Module declared in BaseLoop8.hpp, base class in Aux8.hpp
 
-InsOutsGains::InsOutsGains() {
+BaseLoop8::BaseLoop8() {
 //common stuff happens in Aux8 constructor
 
 	configParam(MASTER_PAN_PARAM, -1.f, 1.f, 0.f, "Master pan", "%", 0, 100);
@@ -31,23 +29,14 @@ InsOutsGains::InsOutsGains() {
 	returnWithWet.setPorts(&returnInput, &wetOutput);
 }
 
-void InsOutsGains::process(const ProcessArgs &args) {
+void BaseLoop8::process(const ProcessArgs &args) {
 	
 	if (((args.frame + this->id) % 64) == 0) updateGains();
 
+	// This is from the tutorial module, and is a good place to put debug statements
 	blinkPhase += args.sampleTime;
 	if (blinkPhase >= 0.5f) {
 		blinkPhase -= 0.5f;
-		//DEBUG("%i %i %i %i", inChans, lChans, rChans, tsChans);
-		//DEBUG("%d %d %d", pregainOutput.ilChannels, pregainOutput.leftChannels, pregainOutput.rightChannels);
-		//DEBUG("%" PRId64 " muteMe: %i soloMe:%i soloTracks:%i soloToRight:%i numModules:%i", id, muteMe, soloMe, soloTracks, soloToRight, numModules);
-		//DEBUG("wetOutput: %f   firstInput: %f", wetOutput.ilAudio[0][3], firstInput.ilAudio[0][3]);
-		//DEBUG("%" PRId64 " numModules:%i", id, numModules);
-		//DEBUG("%" PRId64, id);
-		//DEBUG("%f %f", debugValue1, debugValue2);
-		//DEBUG("%" PRId64 " copyMono: %d", id, firstInput.polyAuxDbg);
-		//updateGains();
-		//DEBUG("%li", svgCacheByTheme.size());
 	}
 
 	firstInput.pullAudio(true, monoInputMode);
@@ -55,12 +44,11 @@ void InsOutsGains::process(const ProcessArgs &args) {
 
 	firstWithSend.gainAudio(monoGains);
 
-//	returnInput.pullAudio(!muteMe && (soloMe || (soloTracks == 0))); //broken, but why
 	returnInput.pullAudio(((!muteMe && (soloMe || (soloTracks == 0))) ? true : false), monoInputMode);
 	wetOutput.setChannelsFromInput(&returnInput);
 
 	// set up details for the expander
-	expandsRightward = calcRightExpansion(); // rightExpander.module && (rightExpander.module->model == modelGainsSendsReturns);
+	expandsRightward = calcRightExpansion(); // rightExpander.module && (rightExpander.module->model == modelLoop8);
 	expandsLeftward = calcLeftExpansion();
 
 	if (expandsRightward) {
@@ -115,7 +103,7 @@ void InsOutsGains::process(const ProcessArgs &args) {
 	}
 } //process
 
-void InsOutsGains::updateGains() {
+void BaseLoop8::updateGains() {
 	Aux8::updateGains();
 	bool changed = false;
 	float pv = params[MASTER_PAN_PARAM].getValue();
@@ -139,55 +127,55 @@ void InsOutsGains::updateGains() {
 	lights[RIGHT_IN_LIGHT].setBrightness(inputs[RIGHT_INPUT].getChannels() > 8 ? 1 : 0);
 }
 
-bool InsOutsGains::calcLeftExpansion() {
-	return leftExpander.module && leftExpander.module->model == modelOuts;
+bool BaseLoop8::calcLeftExpansion() {
+	return leftExpander.module && leftExpander.module->model == modelOuts8;
 }
 
-json_t* InsOutsGains::dataToJson() {
-	json_t* rootJ = Aux8<InsOutsGains>::dataToJson();
+json_t* BaseLoop8::dataToJson() {
+	json_t* rootJ = Aux8<BaseLoop8>::dataToJson();
 	json_object_set_new(rootJ, "masterPanMode", json_integer(masterPanMode));
 	json_object_set_new(rootJ, "trackLabels", json_string(trackLabelChars));
 	return rootJ;
 }
 
-void InsOutsGains::dataFromJson(json_t* rootJ) {
-	Aux8<InsOutsGains>::dataFromJson(rootJ);
+void BaseLoop8::dataFromJson(json_t* rootJ) {
+	Aux8<BaseLoop8>::dataFromJson(rootJ);
 	json_t* masterPanModeJ = json_object_get(rootJ, "masterPanMode");
 	if (masterPanModeJ)	masterPanMode = json_integer_value(masterPanModeJ);
 	json_t* trackLabelsJ = json_object_get(rootJ, "trackLabels");
 	if (trackLabelsJ) sprintf(trackLabelChars, "%32s", json_string_value(trackLabelsJ));
 }
 
-void InsOutsGains::onReset(const ResetEvent& e) {
+void BaseLoop8::onReset(const ResetEvent& e) {
 	masterPanMode = 3;
 	strncpy(trackLabelChars,"-01--02--03--04--05--06--07--08-", 33);
 	loadLabels = true;
 	Aux8::onReset(e);
 }	
 
-InsOutsGainsWidget::InsOutsGainsWidget(InsOutsGains* module) : Aux8Widget<InsOutsGains>(module, "res/InsOutsGains_11hp_Plus.svg") {
+BaseLoop8Widget::BaseLoop8Widget(BaseLoop8* module) : Aux8Widget<BaseLoop8>(module, "res/BaseLoop8_11hp_Plus.svg") {
 	// Column 1: Inputs, outputs, dry inmix knob
 	float xpos = 9;
 	float ypos = 13.4;
-	addInput(createInputCentered<WhiteRedPJ301MPort>(mm2px(Vec(xpos, ypos)), module, InsOutsGains::INTERLEAVED_INPUT));
-	addInput(createInputCentered<WhitePJ301MPort>(mm2px(Vec(xpos, ypos + 9)), module, InsOutsGains::LEFT_INPUT));
-	addChild(createLightCentered<TinyLight<RedLight>>(mm2px(Vec(xpos + 3.8, ypos + 12.4)), module, InsOutsGains::LEFT_IN_LIGHT));
-	addInput(createInputCentered<RedPJ301MPort>(mm2px(Vec(xpos, ypos + 18)), module, InsOutsGains::RIGHT_INPUT));
-	addChild(createLightCentered<TinyLight<RedLight>>(mm2px(Vec(xpos + 3.8, ypos + 21.4)), module, InsOutsGains::RIGHT_IN_LIGHT));
+	addInput(createInputCentered<WhiteRedPJ301MPort>(mm2px(Vec(xpos, ypos)), module, BaseLoop8::INTERLEAVED_INPUT));
+	addInput(createInputCentered<WhitePJ301MPort>(mm2px(Vec(xpos, ypos + 9)), module, BaseLoop8::LEFT_INPUT));
+	addChild(createLightCentered<TinyLight<RedLight>>(mm2px(Vec(xpos + 3.8, ypos + 12.4)), module, BaseLoop8::LEFT_IN_LIGHT));
+	addInput(createInputCentered<RedPJ301MPort>(mm2px(Vec(xpos, ypos + 18)), module, BaseLoop8::RIGHT_INPUT));
+	addChild(createLightCentered<TinyLight<RedLight>>(mm2px(Vec(xpos + 3.8, ypos + 21.4)), module, BaseLoop8::RIGHT_IN_LIGHT));
 
 	ypos = 15;
-	addOutput(createOutputCentered<WhiteRedPJ301MPort>(mm2px(Vec(xpos, ypos + 32)), module, InsOutsGains::INTERLEAVED_WET_OUTPUT));
-	addOutput(createOutputCentered<WhitePJ301MPort>(mm2px(Vec(xpos, ypos + 41)), module, InsOutsGains::LEFT_WET_OUTPUT));
-	addOutput(createOutputCentered<RedPJ301MPort>(mm2px(Vec(xpos, ypos + 50)), module, InsOutsGains::RIGHT_WET_OUTPUT));
+	addOutput(createOutputCentered<WhiteRedPJ301MPort>(mm2px(Vec(xpos, ypos + 32)), module, BaseLoop8::INTERLEAVED_WET_OUTPUT));
+	addOutput(createOutputCentered<WhitePJ301MPort>(mm2px(Vec(xpos, ypos + 41)), module, BaseLoop8::LEFT_WET_OUTPUT));
+	addOutput(createOutputCentered<RedPJ301MPort>(mm2px(Vec(xpos, ypos + 50)), module, BaseLoop8::RIGHT_WET_OUTPUT));
 	
-	addParam(createParamCentered<ChickenHeadKnobIvory>(mm2px(Vec(xpos, ypos + 65)), module, InsOutsGains::MASTER_PAN_PARAM));
-	addParam(createParamCentered<VGLabsSlider>(mm2px(Vec(xpos, 97)), module, InsOutsGains::MASTER_GAIN_PARAM));
-	addParam(createParamCentered<btnMute>(mm2px(Vec(xpos, 110)), module, InsOutsGains::MASTER_MUTE_PARAM));
-	addParam(createParamCentered<ChickenHeadKnobIvory>(mm2px(Vec(xpos, 120)), module, InsOutsGains::DRYPLUS_PARAM));
+	addParam(createParamCentered<ChickenHeadKnobIvory>(mm2px(Vec(xpos, ypos + 65)), module, BaseLoop8::MASTER_PAN_PARAM));
+	addParam(createParamCentered<VGLabsSlider>(mm2px(Vec(xpos, 97)), module, BaseLoop8::MASTER_GAIN_PARAM));
+	addParam(createParamCentered<btnMute>(mm2px(Vec(xpos, 110)), module, BaseLoop8::MASTER_MUTE_PARAM));
+	addParam(createParamCentered<ChickenHeadKnobIvory>(mm2px(Vec(xpos, 120)), module, BaseLoop8::DRYPLUS_PARAM));
 
 	//Column 2: Track labels
 	for (unsigned int i = 0; i < 8; i++) {
-		LedDisplayLimitedTextField<InsOutsGains>* d = createWidget<LedDisplayLimitedTextField<InsOutsGains>>(mm2px(Vec(20,12)));
+		LedDisplayLimitedTextField<BaseLoop8>* d = createWidget<LedDisplayLimitedTextField<BaseLoop8>>(mm2px(Vec(20,12)));
 		d->module = module ? module : nullptr;
 		d->index = i;
 		d->box.size = Vec(28, 15);
@@ -203,9 +191,7 @@ InsOutsGainsWidget::InsOutsGainsWidget(InsOutsGains* module) : Aux8Widget<InsOut
 	}
 	// Columns 3&4 handled by Aux8Widget constructor
 
-	// The preferred procedure is to subclass any widget you want to theme,
-	// implementing IApplyTheme (which is quite simple to do in most cases),
-	// and use this helper to apply the theme to the widget hierarchy.
+	// Apply theme to components
 	if (my_module) {
 		auto themes = my_module->getThemes();
 		auto theme = my_module->getTheme();
@@ -214,18 +200,17 @@ InsOutsGainsWidget::InsOutsGainsWidget(InsOutsGains* module) : Aux8Widget<InsOut
 	}
 }
 
-void InsOutsGainsWidget::appendContextMenu(Menu* menu) {
-	InsOutsGains* module = getModule<InsOutsGains>();
+void BaseLoop8Widget::appendContextMenu(Menu* menu) {
+	BaseLoop8* module = getModule<BaseLoop8>();
 	menu->addChild(new MenuSeparator);
 	menu->addChild(createIndexPtrSubmenuItem("Master Pan", {"True Pan (L + R)", "Linear Attenuation", "3dB boost (constant power)", "4.5dB Boost (compromise, default)", "6dB Boost (linear)"}, &module->masterPanMode));
-	Aux8Widget<InsOutsGains>::appendContextMenu(menu);
+	Aux8Widget<BaseLoop8>::appendContextMenu(menu);
 }
 
-void InsOutsGainsWidget::step() {
+void BaseLoop8Widget::step() {
 	if (module) {
-		InsOutsGains* module = static_cast<InsOutsGains*>(this->module);
+		BaseLoop8* module = static_cast<BaseLoop8*>(this->module);
 		if (oldModules != module->numModules) {
-			//labelTotal->text = std::to_string(module->numModules);
 			oldModules = module->numModules;
 		}
 		if (module->loadLabels) {
@@ -238,5 +223,5 @@ void InsOutsGainsWidget::step() {
 	Aux8Widget::step();
 }
 
-Model* modelInsOutsGains = createModel<InsOutsGains, InsOutsGainsWidget>("InsOutsGains");
+Model* modelBaseLoop8 = createModel<BaseLoop8, BaseLoop8Widget>("BaseLoop8");
 

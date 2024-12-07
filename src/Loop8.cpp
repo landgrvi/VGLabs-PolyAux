@@ -1,21 +1,21 @@
 #include "plugin.hpp"
-#include "GainsSendsReturns.hpp"
+#include "Loop8.hpp"
 
 using namespace rack;
 
-GainsSendsReturns::GainsSendsReturns() {
+Loop8::Loop8() {
 	pregainWithSend.setPorts(&pregainAudio, &sendOutput);
 	returnWithWet.setPorts(&returnInput, &wetAudio);
 }
 
-void GainsSendsReturns::process(const ProcessArgs &args) {
+void Loop8::process(const ProcessArgs &args) {
 	
 	if (((args.frame + this->id) % 64) == 0) updateGains();
 	
 	debugValue = 0.f;
 
-	expandsLeftward = leftExpander.module && (leftExpander.module->model == modelInsOutsGains || leftExpander.module->model == modelGainsSendsReturns);
-	expandsRightward = rightExpander.module && (rightExpander.module->model == modelGainsSendsReturns);
+	expandsLeftward = leftExpander.module && (leftExpander.module->model == modelBaseLoop8 || leftExpander.module->model == modelLoop8);
+	expandsRightward = rightExpander.module && (rightExpander.module->model == modelLoop8);
 
 	expMessage* rightSink = expandsRightward ? (expMessage*)(rightExpander.module->leftExpander.producerMessage) : nullptr; // this is the rightward module's; I write to it and request flip
 	expMessage* rightSource = (expMessage*)(rightExpander.consumerMessage); // this is mine; my rightExpander.producer message is written by the rightward module, which requests flip
@@ -101,14 +101,10 @@ void GainsSendsReturns::process(const ProcessArgs &args) {
 		leftExpander.module->rightExpander.messageFlipRequested = true; // tell the leftward module it can flip, putting the producer I wrote to in its consumer
 	}
 
+	// This is from the tutorial module, and is a good place to put debug statements
 	blinkPhase += args.sampleTime;
 	if (blinkPhase >= 0.5f) {
 		blinkPhase -= 0.5f;
-		//DEBUG("%i %i %i %i", sendOutput.ilChannels, sendOutput.leftChannels, sendOutput.rightChannels, argggggh);
-		//DEBUG("%li soloMe:%i soloTracks:%i soloToRight:%i numModules:%i", id, soloMe, soloTracks, soloToRight, numModules);
-		//DEBUG("%f", wetOutput.ilAudio[0][3]);
-		//DEBUG("%li %f", id, debugValue);
-		//DEBUG("%li numModules:%i", id, numModules);
 	}
 } //process
 

@@ -1,46 +1,38 @@
 {
-  "slug": "MyPlugin",
-  "name": "MyPlugin",
+  "slug": "VGLabs",
+  "name": "VGLabs",
   "version": "2.0.0",
-  "license": "GPLv3+",
+  "license": "GPL-3.0-or-later",
   "brand": "VGLabs",
   "author": "Victoria Grace Landgraf",
   "authorEmail": "",
   "authorUrl": "",
-  "pluginUrl": "",
+  "pluginUrl": "https://github.com/landgrvi/VGLabs-PolyAux",
   "manualUrl": "",
-  "sourceUrl": "",
+  "sourceUrl": "https://github.com/landgrvi/VGLabs-PolyAux",
   "donateUrl": "",
   "changelogUrl": "",
   "modules": [
-    {
-      "slug": "MyModule",
-      "name": "MyModule",
-      "description": "Simple sine oscillator",
-      "tags": [
-        "VCO"
-      ]
-    },
-    {
-      "slug": "InsOutsGains",
-      "name": "Poly Inputs, Outputs, and Gains",
-      "description": "Polyphonic Routing Assistant",
+	{
+      "slug": "BaseLoop8",
+      "name": "PolyAux 8-channel Base",
+      "description": "PolyAux 8-channel base with 1 effects loop",
       "tags": [
         "Polyphonic"
       ]
     },
     {
-      "slug": "GainsSendsReturns",
-      "name": "PolyAux",
-      "description": "Expander for Polyphonic Routing Assistant",
+      "slug": "Loop8",
+      "name": "PolyAux 8-channel Loop",
+      "description": "PolyAux 8-channel loop expander (goes on right side of base or loop)",
       "tags": [
         "Polyphonic"
       ]
     },
     {
-      "slug": "Outs",
-      "name": "Outs",
-      "description": "Output expander for Aux8",
+      "slug": "Outs8",
+      "name": "PolyAux 8-channel Outputs",
+      "description": "PolyAux 8-channel additional output expander (goes on left side of base)",
       "tags": [
         "Polyphonic"
       ]
