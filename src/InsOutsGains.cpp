@@ -82,6 +82,7 @@ void InsOutsGains::process(const ProcessArgs &args) {
 		rightSink->soloSoFar = soloToRight;
 		rightSink->numModulesSoFar = numMe;
 		rightSink->masterPanMode = masterPanMode;
+		rightSink->leftTheme = theme;
 		soloTracks = rightSource->soloTotal;
 		numModules = rightSource->numModulesTotal;
 		
@@ -134,6 +135,8 @@ void InsOutsGains::updateGains() {
 	if (changed) {
 		wetOutput.setScaling(masterPanVals, ml * (1.f - mute));
 	}
+	lights[LEFT_IN_LIGHT].setBrightness(inputs[LEFT_INPUT].getChannels() > 8 ? 1 : 0);
+	lights[RIGHT_IN_LIGHT].setBrightness(inputs[RIGHT_INPUT].getChannels() > 8 ? 1 : 0);
 }
 
 bool InsOutsGains::calcLeftExpansion() {
@@ -168,7 +171,9 @@ InsOutsGainsWidget::InsOutsGainsWidget(InsOutsGains* module) : Aux8Widget<InsOut
 	float ypos = 13.4;
 	addInput(createInputCentered<WhiteRedPJ301MPort>(mm2px(Vec(xpos, ypos)), module, InsOutsGains::INTERLEAVED_INPUT));
 	addInput(createInputCentered<WhitePJ301MPort>(mm2px(Vec(xpos, ypos + 9)), module, InsOutsGains::LEFT_INPUT));
+	addChild(createLightCentered<TinyLight<RedLight>>(mm2px(Vec(xpos + 3.8, ypos + 12.4)), module, InsOutsGains::LEFT_IN_LIGHT));
 	addInput(createInputCentered<RedPJ301MPort>(mm2px(Vec(xpos, ypos + 18)), module, InsOutsGains::RIGHT_INPUT));
+	addChild(createLightCentered<TinyLight<RedLight>>(mm2px(Vec(xpos + 3.8, ypos + 21.4)), module, InsOutsGains::RIGHT_IN_LIGHT));
 
 	ypos = 15;
 	addOutput(createOutputCentered<WhiteRedPJ301MPort>(mm2px(Vec(xpos, ypos + 32)), module, InsOutsGains::INTERLEAVED_WET_OUTPUT));
@@ -189,7 +194,6 @@ InsOutsGainsWidget::InsOutsGainsWidget(InsOutsGains* module) : Aux8Widget<InsOut
 		d->textOffset = Vec(-2, -2);
 		d->box.pos = mm2px(Vec(18, 12.1 + 14 * i));
 		d->color = color::GREEN;
-		d->bgColor = VGLABSPURPLE;
 		d->text = "ABCD";
 		if (module) {
 			d->text.assign(&(module->trackLabelChars[i * 4]), 4);
@@ -208,8 +212,6 @@ InsOutsGainsWidget::InsOutsGainsWidget(InsOutsGains* module) : Aux8Widget<InsOut
 		auto svg_theme = themes.getTheme(theme);
 		if (svg_theme) ApplyChildrenTheme(this, themes, svg_theme);
 	}
-
-
 }
 
 void InsOutsGainsWidget::appendContextMenu(Menu* menu) {

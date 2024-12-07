@@ -7,6 +7,7 @@ struct expMessage { // contains both directions
 	unsigned int soloSoFar = 0;
 	unsigned int numModulesSoFar = 0;
 	unsigned int masterPanMode = 3;
+	std::string leftTheme;
 // These things travel leftwards
 	simd::float_4 wetAudio[4] = { };
 	unsigned int wetChans = 0;

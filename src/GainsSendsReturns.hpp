@@ -32,6 +32,8 @@ struct GainsSendsReturns : Aux8<GainsSendsReturns> {
 		ENUMS(MUTE_LIGHTS, 16), // 8 GreenRedLights
 		SOLO_LIGHT,
 		MUTE_LIGHT,
+		LEFT_RETURN_LIGHT,
+		RIGHT_RETURN_LIGHT,
 		TEST_LIGHT,
 		LIGHTS_LEN
 	};

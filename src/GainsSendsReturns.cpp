@@ -63,6 +63,7 @@ void GainsSendsReturns::process(const ProcessArgs &args) {
 		rightSink->soloSoFar = soloToRight;
 		rightSink->numModulesSoFar = numMe;
 		rightSink->masterPanMode = masterPanMode;
+		rightSink->leftTheme = theme;
 		soloTracks = rightSource->soloTotal; // total from rightmost module
 		numModules = rightSource->numModulesTotal; // total from rightmost module
 	} else { // I'm the rightmost. Close the loop.

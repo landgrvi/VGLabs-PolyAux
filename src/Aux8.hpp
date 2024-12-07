@@ -32,7 +32,7 @@ struct Aux8 : PachdeThemedModule {
 	unsigned int oldMasterPanMode = 8; // out of range to force initial update
 	float trackPanVals[4] = { };
 	float oldReturnLevel = -1.f;
-	unsigned int monoInputMode = 0;
+	unsigned int monoInputMode = 1;
 	
 	comboAudioOut sendOutput; // to effect
 	comboAudioIn returnInput; // from effect 
@@ -40,8 +40,7 @@ struct Aux8 : PachdeThemedModule {
 	expMessage leftMessages[2][1]; // messages to & from left module
 	expMessage rightMessages[2][1]; // messages to & from right module
 	
-    Aux8() : PachdeThemedModule("res/themes.json") {
-		//defaultTheme = "BlueGreenPurple";
+    Aux8() : PachdeThemedModule("res/themes.json", "BlueGreenPurple") {
 		config(TModule::PARAMS_LEN, TModule::INPUTS_LEN, TModule::OUTPUTS_LEN, TModule::LIGHTS_LEN);
 		char strBuf[32];
 		for (unsigned int i = 0; i < 8; i++) {
@@ -116,6 +115,10 @@ struct Aux8 : PachdeThemedModule {
 		//probably should be done by a button event?
 		soloMe = params[TModule::SOLO_PARAM].getValue();
 		muteMe = params[TModule::MUTE_PARAM].getValue();
+
+		lights[TModule::LEFT_RETURN_LIGHT].setBrightness(inputs[TModule::LEFT_RETURN].getChannels() > 8 ? 1 : 0);
+		lights[TModule::RIGHT_RETURN_LIGHT].setBrightness(inputs[TModule::RIGHT_RETURN].getChannels() > 8 ? 1 : 0);
+		
 	} //updateGains
 	
 	virtual inline bool calcLeftExpansion() {
@@ -150,7 +153,7 @@ struct Aux8 : PachdeThemedModule {
 	} // onReset
 }; // Aux8	
 
-inline float px2mm(float f) { return f * 25.4 / 75; }  // https://community.vcvrack.com/t/in-what-ways-will-rack-v2-require-the-use-of-mm-units-for-drawing/10473/4
+inline float px2mm(float f) { return f * MM_PER_IN / SVG_DPI; }
 
 template<typename TModule>
 struct Aux8Widget : PachdeThemedModuleWidget {
@@ -181,7 +184,9 @@ struct Aux8Widget : PachdeThemedModuleWidget {
 		ypos = 15;
 		addInput(createInputCentered<WhiteRedPJ301MPort>(mm2px(Vec(xpos, ypos + 32)), module, TModule::INTERLEAVED_RETURN));
 		addInput(createInputCentered<WhitePJ301MPort>(mm2px(Vec(xpos, ypos + 41)), module, TModule::LEFT_RETURN));
+		addChild(createLightCentered<TinyLight<RedLight>>(mm2px(Vec(xpos + 3.8, ypos + 44.4)), module, TModule::LEFT_RETURN_LIGHT));
 		addInput(createInputCentered<RedPJ301MPort>(mm2px(Vec(xpos, ypos + 50)), module, TModule::RIGHT_RETURN));
+		addChild(createLightCentered<TinyLight<RedLight>>(mm2px(Vec(xpos + 3.8, ypos + 53.4)), module, TModule::RIGHT_RETURN_LIGHT));
 
 		addParam(createParamCentered<ChickenHeadKnobIvory>(mm2px(Vec(xpos, ypos + 65)), module, TModule::RETURN_PAN_PARAM));
 		addParam(createParamCentered<VGLabsSlider>(mm2px(Vec(xpos, 97)), module, TModule::RETURN_GAIN_PARAM));
@@ -191,12 +196,14 @@ struct Aux8Widget : PachdeThemedModuleWidget {
         // The preferred procedure is to subclass any widget you want to theme,
         // implementing IApplyTheme (which is quite simple to do in most cases),
         // and use this helper to apply the theme to the widget hierarchy.
+        /*
 		if (my_module) {
 			auto themes = my_module->getThemes();
 			auto theme = my_module->getTheme();
 			auto svg_theme = themes.getTheme(theme);
 			if (svg_theme) ApplyChildrenTheme(this, themes, svg_theme);
 		}
+		*/
 	} // constructor
 
 	void draw(const DrawArgs& args) override {

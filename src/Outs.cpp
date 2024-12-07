@@ -2,7 +2,7 @@
 #include "InsOutsGains.hpp"
 #include "Outs.hpp"
 
-Outs::Outs() : PachdeThemedModule("res/themes.json") {
+Outs::Outs() : PachdeThemedModule("res/themes.json", "BlueGreenPurple") {
 	//defaultTheme = "BlueGreenPurple";
 	DEBUG("%s", defaultTheme.c_str());
 	config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
@@ -28,10 +28,13 @@ Outs::Outs() : PachdeThemedModule("res/themes.json") {
 void Outs::process(const ProcessArgs &args) {
 	expandsRightward = calcRightExpansion();
 	if (expandsRightward) {
+		expMessage* rightSink = (expMessage*)(rightExpander.module->leftExpander.producerMessage); // this is the rightward module's; I write to it and request flip
 		expMessage* rightSource = (expMessage*)(rightExpander.consumerMessage); // this is mine; my rightExpander.producer message is written by the rightward module, which requests flip
 		pregainOutput.setAudio(rightSource->pregainAudio);
 		pregainOutput.setChannels(rightSource->pregainChans);
 		wetAudio.setAudio(rightSource->wetAudio);
+		rightSink->leftTheme = theme;
+		rightExpander.module->leftExpander.messageFlipRequested = true; // request rightward module to flip its leftExpander, as I've now written to its producer
 	}
 	else {
 		pregainOutput.clearAudio();

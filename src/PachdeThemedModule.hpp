@@ -13,8 +13,9 @@ struct PachdeThemedModule : Module {
     // Where the themes come from
     std::string themeFilename;
     
-    PachdeThemedModule(std::string themeFile) {
+    PachdeThemedModule(std::string themeFile, std::string defaultTheme = "Light") {
 		themeFilename = asset::plugin(pluginInstance, themeFile);
+		this->defaultTheme = defaultTheme;
 	// For demo and authoring purposes, we log to the Rack log.
 	//
 	// In a production VCV Rack module in the library, logging to Rack's log is disallowed.
@@ -65,7 +66,7 @@ struct PachdeThemedModuleWidget : ModuleWidget, svg_theme::IThemeHolder {
     
     PachdeThemedModuleWidget(PachdeThemedModule* module, std::string panelFile) {
 		panelFilename = asset::plugin(pluginInstance, panelFile);
-		setPanel(createPanel(asset::plugin(pluginInstance, panelFile)));
+		setPanel(createPanel(panelFilename));
 		my_module = module ? module : nullptr;
 		if (my_module && !isDefaultTheme()) {
 			// only initialize themes and modify the svg when the current theme is not the default theme
@@ -154,10 +155,13 @@ struct PachdeThemedModuleWidget : ModuleWidget, svg_theme::IThemeHolder {
         if (!themes.isLoaded()) return; // Can't load themes, so no menu to display
 
         // Good practice to separate your module's menus from the Rack menus
-        menu->addChild(new MenuSeparator); 
+        menu->addChild(new MenuSeparator);
 
         // add the "Theme" menu
-        svg_theme::AppendThemeMenu(menu, this, themes);
+        //svg_theme::AppendThemeMenu(menu, this, themes);
+        menu->addChild(createSubmenuItem("Themes", "", [=](Menu* menu) {//menu->addChild(createMenuItem("Use Leftmost (not implemented)", "", [=]() {} ));
+																	    svg_theme::AppendThemeMenu(menu, this, my_module->themes); } ));
+        
     } 
 
 	void onDirty(const DirtyEvent &e) override {

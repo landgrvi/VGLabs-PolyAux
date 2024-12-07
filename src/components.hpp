@@ -155,9 +155,19 @@ struct btnSolo : SvgButtonWithRoundedRectHalo {
 	}
 
 };
-		
+
+// from Svg.cpp
+static NVGcolor getNVGColor(uint32_t color) {
+	return nvgRGBA(
+		(color >> 0) & 0xff,
+		(color >> 8) & 0xff,
+		(color >> 16) & 0xff,
+		(color >> 24) & 0xff);
+}
+
+	
 template<typename TModule>
-struct LedDisplayLimitedTextField : LedDisplayTextField {
+struct LedDisplayLimitedTextField : LedDisplayTextField, svg_theme::IApplyTheme {
 	TModule* module;
 	unsigned int index = 0;
 	int numChars = 4;
@@ -180,6 +190,14 @@ struct LedDisplayLimitedTextField : LedDisplayTextField {
 		LedDisplayTextField::onChange(e);
 	}
 
+    bool applyTheme(svg_theme::SvgThemes& themes, std::shared_ptr<svg_theme::Theme> theme) override {
+		if (theme->getStyle("leddisplaytext") && theme->getStyle("leddisplaytext")->isApplyStroke()) { 
+			DEBUG("%s %x", theme->name.c_str(), theme->getStyle("leddisplaytext")->stroke.getColor());
+			color = getNVGColor(theme->getStyle("leddisplaytext")->stroke.getColor());
+			return true;
+		}
+		return false;
+    }
 };
 
 struct VGLabsSlider : SvgSlider, svg_theme::IApplyTheme {

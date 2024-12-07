@@ -27,7 +27,6 @@
 #include <nanosvg.h>
 #include <jansson.h>
 #include <rack.hpp>
-#include "svgdistinct.hpp"
 
 namespace svg_theme {
 
@@ -170,10 +169,10 @@ public:
     // You must send a Dirty event to any widget where applyTheme to any of its component SVGs returns true.
     bool applyTheme(std::shared_ptr<Theme> theme, NSVGimage* svg);
     // Alternatively, apply the theme to an SVG
-    // This uses an alternative SVG cache, indexed by filename and theme, allowing multiple instances of the same module to be independent.
+    // This uses an alternative SVG cache, indexed by SVG filename and theme, allowing multiple instances of the same module to be independent.
     // return true if the SVG was modified. 
     // Use the SVG as is required for your situation.
-    bool applyTheme(std::shared_ptr<Theme> theme, std::string filename, std::shared_ptr<rack::window::Svg>& svg);
+    bool applyTheme(std::shared_ptr<Theme> theme, std::string svgFile, std::shared_ptr<rack::window::Svg>& svg);
 
     // Get a list of themes defined in the style sheet
     std::vector<std::string> getThemeNames()
@@ -870,7 +869,6 @@ struct SvgByTheme : rack::window::Svg {
 	}
 };
 
-//std::shared_ptr<rack::window::Svg> SvgThemes::applyTheme(std::shared_ptr<Theme> theme, std::string filename, std::shared_ptr<rack::window::Svg> svg) {
 bool SvgThemes::applyTheme(std::shared_ptr<Theme> theme, std::string filename, std::shared_ptr<rack::window::Svg>& svg) {
 	//check the themed cache for existing relevant svg
 	logInfo(format_string("about to check for cache entry %s (%s)", filename.c_str(), theme->name.c_str()));

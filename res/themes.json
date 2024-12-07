@@ -1,5 +1,36 @@
 [
     {
+        "name": "Halloween",
+        "theme": {
+            "panel": {
+                "fill": {
+                    "gradient": [
+                        { "index": 0, "color": "#C34610", "offset": 0 },
+                        { "index": 1, "color": "#561600", "offset": 1 }
+                    ]
+				}
+            },
+            "outbg": {
+				"fill": "#000000"
+			},
+            "logodark": {
+				"fill": "#000000"
+			},
+            "logopale": {
+				"fill": "#887722"
+			},
+            "filldark": {
+				"fill": "#000000"
+			},
+            "strokedark": {
+				"stroke": "#000000"
+			},
+            "leddisplaytext": {
+				"stroke": "#FFAA00"
+			}
+        }
+    },
+    {
         "name": "BlueGreenPurple",
         "theme": {
             "panel": {
@@ -24,6 +55,9 @@
 			},
             "strokedark": {
 				"stroke": "#461621"
+			},
+            "leddisplaytext": {
+				"stroke": "#00FF00"
 			}
         }
     },
@@ -52,6 +86,9 @@
 			},
             "strokedark": {
 				"stroke": "#222222"
+			},
+            "leddisplaytext": {
+				"stroke": "#FFFFFF"
 			}
         }
     }
