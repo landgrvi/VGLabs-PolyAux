@@ -5,7 +5,7 @@ Maybe you're a frequent user of MixMasterJr and Arena? Yeah, me too!
 Thus these modules were born.
 
 The modules have a few themes included, which you can find in the right-click menu.  
-You can add your own in **[themes.json](../res/themes.json)**. It's loaded at runtime, so no need to recompile.
+You can add your own in **[themes.json](../res/themes.json)** by copying an existing one and changing the name and colours. It's loaded at runtime, so no need to recompile.
 
 Most ports come in sets of three: Interleaved, Left, and Right. These are polyphonic and interleaved is arranged LRLRLRLRLRLRLRLR (like MixMaster's polyphonic outputs).  
 For inputs, these are summed: you can plug into all three ports. Signals plugged into the left port and the left channels of the interleaved port are added together, and the same with the right channels.
