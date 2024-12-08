@@ -8,7 +8,8 @@ The modules have a few themes included, which you can find in the right-click me
 You can add your own in **[themes.json](../res/themes.json)**. It's loaded at runtime, so no need to recompile.
 
 Most ports come in sets of three: Interleaved, Left, and Right. These are polyphonic and interleaved is arranged LRLRLRLRLRLRLRLR (like MixMaster's polyphonic outputs).  
-For inputs, these are summed: you can plug into all three ports. Signals plugged into the left port and the left channels of the interleaved port are added together, and the same with the right channels.  
+For inputs, these are summed: you can plug into all three ports. Signals plugged into the left port and the left channels of the interleaved port are added together, and the same with the right channels.
+If you plug a cable with more than 8 channels into a left or right port, a warning light goes on. Signals from channels above 8 are dropped.  
 For outputs, the same signals will be seen on the interleaved port as on the left and right ports; the left and right ports have only the left and right channels respectively.
 
 Each effects loop has level and mute per track before the send, and overall level and pan after the return. Each loop can be muted or soloed. There's a master level and pan, and a wet/dry mix knob, on the base.
