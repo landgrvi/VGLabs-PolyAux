@@ -618,7 +618,7 @@ bool SvgThemes::parseStroke(json_t* root, std::shared_ptr<Style> style)
 
 bool SvgThemes::parseStyle(const char * name, json_t* root, std::shared_ptr<Theme> theme)
 {
-    logInfo(format_string("Parsing '%s'", name));
+    //logInfo(format_string("Parsing '%s'", name));
     auto style = std::make_shared<Style>();
     if (!parseFill(root, style)) return false;
     if (!parseStroke(root, style)) return false;
@@ -675,7 +675,7 @@ bool SvgThemes::load(const std::string& filename)
                 if (name && *name) {
                     j = json_object_get(item, "theme");
                     if (j && json_is_object(j)) {
-                        logInfo(format_string("Parsing theme '%s'", name));
+                        //logInfo(format_string("Parsing theme '%s'", name));
                         auto theme = std::make_shared<Theme>();
                         theme->name = name;
                         theme->file = filename;
@@ -743,7 +743,7 @@ bool SvgThemes::applyPaint(std::string tag, NSVGpaint & target, Paint& source)
                     }
                     target.type = NSVG_PAINT_COLOR;
                     target.color = source_color;
-					logInfo(format_string("'%s': applying paint with colour %X", tag.c_str(), source_color));
+					//logInfo(format_string("'%s': applying paint with colour %X", tag.c_str(), source_color));
                     return true;
                 }
             }
@@ -801,7 +801,7 @@ bool SvgThemes::applyStroke(std::string tag, NSVGshape* shape, std::shared_ptr<S
 
 bool SvgThemes::applyTheme(std::shared_ptr<Theme> theme, NSVGimage* svg)
 {
-	logInfo(format_string("'%s': applying theme", theme->name.c_str()));
+	// logInfo(format_string("'%s': applying theme", theme->name.c_str()));
     if (!theme || !svg || !svg->shapes) return false;
     bool modified = false;
     for (NSVGshape* shape = svg->shapes; nullptr != shape; shape = shape->next) {
@@ -818,11 +818,11 @@ bool SvgThemes::applyTheme(std::shared_ptr<Theme> theme, NSVGimage* svg)
                 modified = true;
             }
             if (applyFill(tag, shape, style)) {
-				logInfo(format_string("'%s': applied fill %s", theme->name.c_str(), tag.c_str()));
+				// logInfo(format_string("'%s': applied fill %s", theme->name.c_str(), tag.c_str()));
                 modified = true;
             }
             if (applyStroke(tag, shape, style)) {
-				logInfo(format_string("'%s': applied stroke %s", theme->name.c_str(), tag.c_str()));
+				// logInfo(format_string("'%s': applied stroke %s", theme->name.c_str(), tag.c_str()));
                 modified = true;
             }
         }
@@ -837,14 +837,11 @@ struct SvgByTheme : rack::window::Svg {
 	static std::shared_ptr<rack::window::Svg> load(const std::string& filename, std::shared_ptr<Theme> theme, std::shared_ptr<rack::window::Svg> oldSvg) {
 		const auto& pair = svgCacheByTheme.find(std::tuple<std::string, std::string, std::string>(filename, theme->file, theme->name));
 		if (pair != svgCacheByTheme.end()) {
-			DEBUG("found %s with theme %s from %s in svgCacheByTheme, which has %lu entries", filename.c_str(), theme->name.c_str(), theme->file.c_str(), svgCacheByTheme.size());
-			if (pair->second == oldSvg) DEBUG("and it's the same");
 			return pair->second;
 		}
 
 		std::shared_ptr<rack::window::Svg> newSvg;
 		try {
-			DEBUG("loading %s for theme %s from %s", filename.c_str(), theme->name.c_str(), theme->file.c_str());
 			newSvg = std::make_shared<rack::window::Svg>();
 			newSvg->loadFile(filename);
 		}
@@ -854,7 +851,6 @@ struct SvgByTheme : rack::window::Svg {
 		}
 		if (newSvg) {
 			svgCacheByTheme[std::tuple<std::string, std::string, std::string>(filename, theme->file, theme->name)] = newSvg;
-			DEBUG("cached %s with theme %s from %s in svgCacheByTheme, which has %lu entries", filename.c_str(), theme->name.c_str(), theme->file.c_str(), svgCacheByTheme.size());
 		}
 		return newSvg;
 	}
@@ -871,13 +867,11 @@ struct SvgByTheme : rack::window::Svg {
 
 bool SvgThemes::applyTheme(std::shared_ptr<Theme> theme, std::string filename, std::shared_ptr<rack::window::Svg>& svg) {
 	//check the themed cache for existing relevant svg
-	logInfo(format_string("about to check for cache entry %s (%s)", filename.c_str(), theme->name.c_str()));
 	std::shared_ptr<rack::window::Svg> newSvg = SvgByTheme::load(filename, theme, svg);
 	if (newSvg && (newSvg != svg)) {
-		logInfo(format_string("retrieved cache entry %s (%s)", filename.c_str(), theme->name.c_str()));
 		applyTheme(theme, newSvg->handle);
 		svg = newSvg;
-		SvgByTheme::showCache();
+		//SvgByTheme::showCache();
 		return true;
 	}
 	return false;

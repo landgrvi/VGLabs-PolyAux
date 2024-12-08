@@ -1,3 +1,6 @@
+// This module and widget are a restructure of pachde's svgtheme demo code;
+// See https://github.com/Paul-Dempsey/svg_theme for more info.
+
 #pragma once
 
 #include <rack.hpp>
@@ -70,13 +73,13 @@ struct PachdeThemedModuleWidget : ModuleWidget, svg_theme::IThemeHolder {
 		my_module = module ? module : nullptr;
 		if (my_module && !isDefaultTheme()) {
 			// only initialize themes and modify the svg when the current theme is not the default theme
-			DEBUG("constructing");
+			//DEBUG("constructing");
 			if (my_module->initThemes()) {
 				auto theme = my_module->getTheme();
 				if (theme.length() == 0) {
-					DEBUG("%li has no theme in constructor", my_module->id);
+					//DEBUG("%li has no theme in constructor", my_module->id);
 				} else {
-					DEBUG("%li has theme %s in constructor", my_module->id, theme.c_str());
+					//DEBUG("%li has theme %s in constructor", my_module->id, theme.c_str());
 					setTheme(theme);
 				}
 			}
@@ -86,10 +89,10 @@ struct PachdeThemedModuleWidget : ModuleWidget, svg_theme::IThemeHolder {
 	void step() override {
 		if (setMyTheme) {
 			if (my_module) {
-				DEBUG("setting theme in step");
+				//DEBUG("setting theme in step");
 				auto theme = my_module->getTheme();
 				if (theme.length() == 0) {
-					DEBUG("%li has no theme in step", my_module->id);
+					//DEBUG("%li has no theme in step", my_module->id);
 				} else {
 					setTheme(theme);
 				}
@@ -117,7 +120,7 @@ struct PachdeThemedModuleWidget : ModuleWidget, svg_theme::IThemeHolder {
         if (!my_module) return;
         auto panel = dynamic_cast<rack::app::SvgPanel*>(getPanel());
         if (!panel) return;
-		DEBUG("Setting theme %s in %li", theme.c_str(), my_module->id);
+		//DEBUG("Setting theme %s in %li", theme.c_str(), my_module->id);
 
         my_module->initThemes(); // load themes as necessary
         auto themes = my_module->getThemes();
@@ -130,9 +133,9 @@ struct PachdeThemedModuleWidget : ModuleWidget, svg_theme::IThemeHolder {
         // and using ApplyChildrenTheme.
         std::shared_ptr<Svg> newSvg = panel->svg;
         if (themes.applyTheme(svg_theme, panelFilename, newSvg)) {
-			DEBUG("Applied theme %s %s", theme.c_str(), svg_theme->name.c_str());
+			//DEBUG("Applied theme %s %s", theme.c_str(), svg_theme->name.c_str());
 			panel->setBackground(newSvg);
-			DEBUG("set panel background"); 
+			//DEBUG("set panel background"); 
             // The SVG was changed, so we need to tell the widget to redraw
             EventContext ctx;
             DirtyEvent dirt;
@@ -163,13 +166,4 @@ struct PachdeThemedModuleWidget : ModuleWidget, svg_theme::IThemeHolder {
 																	    svg_theme::AppendThemeMenu(menu, this, my_module->themes); } ));
         
     } 
-
-	void onDirty(const DirtyEvent &e) override {
-		DEBUG("onDirty modulewidget");
-		ModuleWidget::onDirty(e);
-	}
-
 };
-
-	
-

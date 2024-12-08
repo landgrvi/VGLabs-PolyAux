@@ -14,9 +14,9 @@ struct Outs8 : PachdeThemedModule {
 		INPUTS_LEN
 	};
 	enum OutputId {
-		INTERLEAVED_PREGAIN_OUTPUT,
-		LEFT_PREGAIN_OUTPUT,
-		RIGHT_PREGAIN_OUTPUT,
+		INTERLEAVED_DRY_OUTPUT,
+		LEFT_DRY_OUTPUT,
+		RIGHT_DRY_OUTPUT,
 		ENUMS(WET_OUTPUTS,16),
 		OUTPUTS_LEN
 	};
@@ -26,6 +26,8 @@ struct Outs8 : PachdeThemedModule {
 
     float debugValue = 0;
 	float blinkPhase = 0;
+	
+	unsigned int monoOutputMode = 1;
 	
 	bool expandsLeftward = false;
 	bool expandsRightward = false;
@@ -40,12 +42,17 @@ struct Outs8 : PachdeThemedModule {
 	inline bool calcLeftExpansion() { return false; }
 	inline bool calcRightExpansion() { return rightExpander.module && rightExpander.module->model == modelBaseLoop8; }
 	void process(const ProcessArgs &args) override ;
+	json_t* dataToJson() override ;
+	void dataFromJson(json_t* rootJ) override ;
+	void onReset(const ResetEvent& e) override ;
+
 }; // Outs8
 
 struct Outs8Widget : PachdeThemedModuleWidget {
 	
 	PanelBorder* panelBorder;
 	Outs8Widget(Outs8* module) ;
+	void appendContextMenu(Menu* menu) override ;
 	void draw(const DrawArgs& args) override ;
 	void step() override ;
 }; // Outs8Widget

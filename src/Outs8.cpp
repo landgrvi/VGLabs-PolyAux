@@ -3,14 +3,12 @@
 #include "Outs8.hpp"
 
 Outs8::Outs8() : PachdeThemedModule("res/themes.json", "BlueGreenPurple") {
-	//defaultTheme = "BlueGreenPurple";
-	DEBUG("%s", defaultTheme.c_str());
 	config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
 	char strBuf[32];
-	configOutput(INTERLEAVED_PREGAIN_OUTPUT, "Interleaved pre-gain");
-	configOutput(LEFT_PREGAIN_OUTPUT, "Left pre-gain");
-	configOutput(RIGHT_PREGAIN_OUTPUT, "Right pre-gain");
-	pregainOutput.setPorts(&outputs[INTERLEAVED_PREGAIN_OUTPUT], &outputs[LEFT_PREGAIN_OUTPUT], &outputs[RIGHT_PREGAIN_OUTPUT]);
+	configOutput(INTERLEAVED_DRY_OUTPUT, "Interleaved dry");
+	configOutput(LEFT_DRY_OUTPUT, "Left dry");
+	configOutput(RIGHT_DRY_OUTPUT, "Right dry");
+	pregainOutput.setPorts(&outputs[INTERLEAVED_DRY_OUTPUT], &outputs[LEFT_DRY_OUTPUT], &outputs[RIGHT_DRY_OUTPUT]);
 	
 	for (unsigned int i = 0; i < 16; i += 2) {
 		snprintf(strBuf, 32, "Left wet %d", i / 2 + 1);
@@ -43,28 +41,55 @@ void Outs8::process(const ProcessArgs &args) {
 	unsigned int c = 0;
 	for (unsigned int i = 0; i < 2; i++) {
 		for (unsigned int j = 0; j < 4; j++) {
-			outputs[WET_OUTPUTS + c++].setVoltage(wetAudio.leftAudio[i][j]);
+			outputs[WET_OUTPUTS + c].setVoltage(wetAudio.leftAudio[i][j] + (monoOutputMode && !outputs[WET_OUTPUTS + c + 1].isConnected() ? wetAudio.rightAudio[i][j] : 0));
+			c++;
 			outputs[WET_OUTPUTS + c++].setVoltage(wetAudio.rightAudio[i][j]);
 		}
 	}
-			
 } // process
 
+json_t* Outs8::dataToJson() {
+	json_t* rootJ = PachdeThemedModule::dataToJson();
+	json_object_set_new(rootJ, "monoOutputMode", json_integer(monoOutputMode));
+	return rootJ;
+}
+
+void Outs8::dataFromJson(json_t* rootJ) {
+	PachdeThemedModule::dataFromJson(rootJ);
+	json_t* monoOutputModeJ = json_object_get(rootJ, "monoOutputMode");
+	if (monoOutputModeJ) monoOutputMode = json_integer_value(monoOutputModeJ);
+}
+
+void Outs8::onReset(const ResetEvent& e) {
+	monoOutputMode = 1;
+	PachdeThemedModule::onReset(e);
+}	
+			
 Outs8Widget::Outs8Widget(Outs8* module) : PachdeThemedModuleWidget(module, "res/Outs8_4hp_Plus.svg") {
 	setModule(module);
 	SvgPanel* svgPanel = static_cast<SvgPanel*>(getPanel());
 	panelBorder = findBorder(svgPanel->fb);
 	float xpos = 10.2;
 	float ypos = 13.4;
-	addOutput(createOutputCentered<WhiteRedPJ301MPort>(mm2px(Vec(xpos, ypos)), module, Outs8::INTERLEAVED_PREGAIN_OUTPUT));
-	addOutput(createOutputCentered<WhitePJ301MPort>(mm2px(Vec(xpos, ypos + 9)), module, Outs8::LEFT_PREGAIN_OUTPUT));
-	addOutput(createOutputCentered<RedPJ301MPort>(mm2px(Vec(xpos, ypos + 18)), module, Outs8::RIGHT_PREGAIN_OUTPUT));
+	addOutput(createOutputCentered<WhiteRedPJ301MPort>(mm2px(Vec(xpos, ypos)), module, Outs8::INTERLEAVED_DRY_OUTPUT));
+	addOutput(createOutputCentered<WhitePJ301MPort>(mm2px(Vec(xpos, ypos + 9)), module, Outs8::LEFT_DRY_OUTPUT));
+	addOutput(createOutputCentered<RedPJ301MPort>(mm2px(Vec(xpos, ypos + 18)), module, Outs8::RIGHT_DRY_OUTPUT));
 	for (unsigned int i = 0; i < 16; i += 2) {
 		addOutput(createOutputCentered<WhitePJ301MPort>(mm2px(Vec(6, 48.5 + (i * 4.5))), module, Outs8::WET_OUTPUTS + i));
 		addOutput(createOutputCentered<RedPJ301MPort>(mm2px(Vec(14.4, 48.5 + (i * 4.5))), module, Outs8::WET_OUTPUTS + i + 1));
 	}
 
 } // Outs8Widget constructor
+
+void Outs8Widget::appendContextMenu(Menu* menu) {
+	Outs8* module = getModule<Outs8>();
+	if (module) {
+		menu->addChild(new MenuSeparator);
+		menu->addChild(createIndexPtrSubmenuItem("Wet Mono Output", {"Do Nothing", "Add R to L (default)"}, &module->monoOutputMode));
+	}
+	PachdeThemedModuleWidget::appendContextMenu(menu);
+}
+
 
 void Outs8Widget::draw(const DrawArgs& args) {
 	if (module) {
@@ -81,7 +106,7 @@ void Outs8Widget::draw(const DrawArgs& args) {
 	}
 } // draw
 
-void Outs8Widget::step()	{
+void Outs8Widget::step() {
 	if (module) {
 		Outs8* module = static_cast<Outs8*>(this->module);
 		// Hide borders to show expansion

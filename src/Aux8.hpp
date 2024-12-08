@@ -47,7 +47,7 @@ struct Aux8 : PachdeThemedModule {
 			snprintf(strBuf, 32, "Gain channel %d", i + 1);
 			configParam(TModule::GAIN_PARAMS + i, 0.f, 2.f, 1.f, strBuf, " dB", -10, 40.f); 
 			snprintf(strBuf, 32, "Mute channel %d", i + 1);
-			configParam(TModule::MUTE_PARAMS + i, 0.f, 1.f, 1.f, strBuf);
+			configParam(TModule::MUTE_PARAMS + i, 0.f, 1.f, 0.f, strBuf);
 		}
 		configOutput(TModule::INTERLEAVED_SEND, "Interleaved send");
 		configOutput(TModule::LEFT_SEND, "Left send");

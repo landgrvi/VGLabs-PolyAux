@@ -191,7 +191,7 @@ struct LedDisplayLimitedTextField : LedDisplayTextField, svg_theme::IApplyTheme 
 
     bool applyTheme(svg_theme::SvgThemes& themes, std::shared_ptr<svg_theme::Theme> theme) override {
 		if (theme->getStyle("leddisplaytext") && theme->getStyle("leddisplaytext")->isApplyStroke()) { 
-			DEBUG("%s %x", theme->name.c_str(), theme->getStyle("leddisplaytext")->stroke.getColor());
+			// DEBUG("%s %x", theme->name.c_str(), theme->getStyle("leddisplaytext")->stroke.getColor());
 			color = getNVGColor(theme->getStyle("leddisplaytext")->stroke.getColor());
 			return true;
 		}
