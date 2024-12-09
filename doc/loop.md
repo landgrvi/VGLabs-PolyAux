@@ -2,7 +2,7 @@
 
 <img src="Loop.png" align="right">
 
-This expander goes to the right of a base or another loop. It gets the dry audio from the base, applies the gains and mutes set by the knobs for each track, and puts that on the send output ports.  
+This expander goes to the right of a BaseLoop or a Loop. It gets the dry audio from the base, applies the gains and mutes set by the knobs for each track, and puts that on the send output ports.  
 The return signal is processed according to the pan and level controls, and sent back to the base to be added to the wet audio.  
 Each loop can be muted or soloed.
 

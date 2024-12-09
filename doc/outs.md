@@ -2,7 +2,7 @@
 
 <img src="Outs.png" align="right">
 
-This expander goes to the left of the base, and provides some additional outputs for your convenience.
+This expander goes to the left of a BaseLoop, and provides some additional outputs for your convenience.
 
 Inputs:
 - None.
