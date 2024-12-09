@@ -5,7 +5,7 @@
 This expander goes to the left of the base, and provides some additional outputs for your convenience.
 
 Inputs:
-&ensp;&ensp;&ensp;None.
+<dl><dd>&ensp;&ensp;&ensp;None.</dd></dl>
 
 Outputs: 
 <dl><dd>&ensp;&ensp;&ensp;Dry output provides the same dry audio that's passed to the loops.
