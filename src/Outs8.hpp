@@ -27,14 +27,14 @@ struct Outs8 : PachdeThemedModule {
     float debugValue = 0;
 	float blinkPhase = 0;
 	
-	unsigned int monoOutputMode = 1;
+	unsigned int monoOutputMode = 0;
 	
 	bool expandsLeftward = false;
 	bool expandsRightward = false;
 	
 	expMessage rightMessages[2][1]; // messages to & from right module
 	
-	comboAudioOut pregainOutput; // from right module, to output ports
+	comboAudioOut dryOutput; // from right module, to output ports
 	comboAudio wetAudio; // from right module, to output ports
 
 	

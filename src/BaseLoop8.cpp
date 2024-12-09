@@ -39,12 +39,12 @@ void BaseLoop8::process(const ProcessArgs &args) {
 		blinkPhase -= 0.5f;
 	}
 
-	firstInput.pullAudio(true, monoInputMode);
+	firstInput.pullAudio(true, 1 - monoInputMode);
 	sendOutput.setChannelsFromInput(&firstInput);
 
 	firstWithSend.gainAudio(monoGains);
 
-	returnInput.pullAudio(((!muteMe && (soloMe || (soloTracks == 0))) ? true : false), monoInputMode);
+	returnInput.pullAudio(((!muteMe && (soloMe || (soloTracks == 0))) ? true : false), 1 - monoInputMode);
 	wetOutput.setChannelsFromInput(&returnInput);
 
 	// set up details for the expander
@@ -203,7 +203,7 @@ BaseLoop8Widget::BaseLoop8Widget(BaseLoop8* module) : Aux8Widget<BaseLoop8>(modu
 void BaseLoop8Widget::appendContextMenu(Menu* menu) {
 	BaseLoop8* module = getModule<BaseLoop8>();
 	menu->addChild(new MenuSeparator);
-	menu->addChild(createIndexPtrSubmenuItem("Master Pan", {"True Pan (L + R)", "Linear Attenuation", "3dB boost (constant power)", "4.5dB Boost (compromise, default)", "6dB Boost (linear)"}, &module->masterPanMode));
+	menu->addChild(createIndexPtrSubmenuItem("Master Pan", {"True Pan (L + R)", "Linear Attenuation", "3dB Boost (constant power)", "4.5dB Boost (compromise, default)", "6dB Boost (linear)"}, &module->masterPanMode));
 	Aux8Widget<BaseLoop8>::appendContextMenu(menu);
 }
 

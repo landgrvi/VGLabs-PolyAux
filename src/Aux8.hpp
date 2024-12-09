@@ -32,7 +32,7 @@ struct Aux8 : PachdeThemedModule {
 	unsigned int oldMasterPanMode = 8; // out of range to force initial update
 	float trackPanVals[4] = { };
 	float oldReturnLevel = -1.f;
-	unsigned int monoInputMode = 1;
+	unsigned int monoInputMode = 0;
 	
 	comboAudioOut sendOutput; // to effect
 	comboAudioIn returnInput; // from effect 
@@ -149,7 +149,7 @@ struct Aux8 : PachdeThemedModule {
 	void onReset(const ResetEvent& e) override {
 		Module::onReset(e);
 		returnPanMode = 0;
-		monoInputMode = 1;
+		monoInputMode = 0;
 	} // onReset
 }; // Aux8	
 
@@ -221,7 +221,7 @@ struct Aux8Widget : PachdeThemedModuleWidget {
 		TModule* module = getModule<TModule>();
 		if (module->model != modelBaseLoop8) menu->addChild(new MenuSeparator);
 		menu->addChild(createIndexPtrSubmenuItem("Return Pan", {"Use Master (default)", "True Pan (L + R)", "Linear Attenuation", "3dB boost (constant power)", "4.5dB Boost (compromise)", "6dB Boost (linear)"}, &module->returnPanMode));
-		menu->addChild(createIndexPtrSubmenuItem("Mono Input", {"Do Nothing", "Copy L to R (default)"}, &module->monoInputMode));
+		menu->addChild(createIndexPtrSubmenuItem("Mono Input", {"Copy L to R (default)", "Do Nothing"}, &module->monoInputMode));
 		PachdeThemedModuleWidget::appendContextMenu(menu);
 	} // appendContextMenu
 	

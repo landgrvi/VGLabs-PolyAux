@@ -6,7 +6,7 @@ Thus these modules were born.
 They take up to eight stereo tracks of input, polyphonically, and provide send/return ports for hooking up to polyphonic effects, creating an effects loop with eight individual tracks.
 You can add another loop expander for each additional effect.
 
-Most ports come in sets of three: Interleaved, Left, and Right. These are polyphonic and interleaved is arranged LRLRLRLRLRLRLRLR (like MixMaster's polyphonic outputs).  
+Most ports come in sets of three: Interleaved, Left, and Right. These are polyphonic, and interleaved is arranged LRLRLRLRLRLRLRLR (like MixMaster's polyphonic outputs).  
 For inputs, these are summed: you can plug into all three ports. Signals plugged into the left port and the left channels of the interleaved port are added together, and the same with the right channels.
 If you plug a cable with more than 8 channels into a left or right port, a warning light goes on. Signals from channels above 8 on those ports are dropped.  
 For outputs, the same signals will be seen on the interleaved port as on the left and right ports; the left and right ports have only the left and right channels respectively.
@@ -21,7 +21,7 @@ This is unlikely to be audible unless you have a LOT of loops, but it's somethin
 No compression or limiting is applied, so it's possible to get very loud results. Beware!
 
 The modules have a few colour themes included, which you can find in the right-click menu.  
-You can add your own in **[themes.json](../res/themes.json)** by copying an existing one and changing the name and colours. It's loaded at runtime, so no need to recompile.
+You can add your own in **[themes.json](../res/themes.json)** ???WHERE??? by copying an existing one and changing the name and colours. It's loaded at runtime, so no need to recompile. ???HOW???
 
 Screenshots and more details are in the individual documents linked below.
 

@@ -8,7 +8,7 @@ Outs8::Outs8() : PachdeThemedModule("res/themes.json", "BlueGreenPurple") {
 	configOutput(INTERLEAVED_DRY_OUTPUT, "Interleaved dry");
 	configOutput(LEFT_DRY_OUTPUT, "Left dry");
 	configOutput(RIGHT_DRY_OUTPUT, "Right dry");
-	pregainOutput.setPorts(&outputs[INTERLEAVED_DRY_OUTPUT], &outputs[LEFT_DRY_OUTPUT], &outputs[RIGHT_DRY_OUTPUT]);
+	dryOutput.setPorts(&outputs[INTERLEAVED_DRY_OUTPUT], &outputs[LEFT_DRY_OUTPUT], &outputs[RIGHT_DRY_OUTPUT]);
 	
 	for (unsigned int i = 0; i < 16; i += 2) {
 		snprintf(strBuf, 32, "Left wet %d", i / 2 + 1);
@@ -28,20 +28,21 @@ void Outs8::process(const ProcessArgs &args) {
 	if (expandsRightward) {
 		expMessage* rightSink = (expMessage*)(rightExpander.module->leftExpander.producerMessage); // this is the rightward module's; I write to it and request flip
 		expMessage* rightSource = (expMessage*)(rightExpander.consumerMessage); // this is mine; my rightExpander.producer message is written by the rightward module, which requests flip
-		pregainOutput.setAudio(rightSource->pregainAudio);
-		pregainOutput.setChannels(rightSource->pregainChans);
+		dryOutput.setAudio(rightSource->pregainAudio);
+		dryOutput.setChannels(rightSource->pregainChans);
 		wetAudio.setAudio(rightSource->wetAudio);
 		rightSink->leftTheme = theme;
 		rightExpander.module->leftExpander.messageFlipRequested = true; // request rightward module to flip its leftExpander, as I've now written to its producer
 	}
 	else {
-		pregainOutput.clearAudio();
+		dryOutput.clearAudio();
+		wetAudio.clearAudio();
 	}
-	pregainOutput.pushAudio();
+	dryOutput.pushAudio();
 	unsigned int c = 0;
 	for (unsigned int i = 0; i < 2; i++) {
 		for (unsigned int j = 0; j < 4; j++) {
-			outputs[WET_OUTPUTS + c].setVoltage(wetAudio.leftAudio[i][j] + (monoOutputMode && !outputs[WET_OUTPUTS + c + 1].isConnected() ? wetAudio.rightAudio[i][j] : 0));
+			outputs[WET_OUTPUTS + c].setVoltage(wetAudio.leftAudio[i][j] + ((1 - monoOutputMode) && !outputs[WET_OUTPUTS + c + 1].isConnected() ? wetAudio.rightAudio[i][j] : 0));
 			c++;
 			outputs[WET_OUTPUTS + c++].setVoltage(wetAudio.rightAudio[i][j]);
 		}
@@ -61,7 +62,7 @@ void Outs8::dataFromJson(json_t* rootJ) {
 }
 
 void Outs8::onReset(const ResetEvent& e) {
-	monoOutputMode = 1;
+	monoOutputMode = 0;
 	PachdeThemedModule::onReset(e);
 }	
 			
@@ -85,7 +86,7 @@ void Outs8Widget::appendContextMenu(Menu* menu) {
 	Outs8* module = getModule<Outs8>();
 	if (module) {
 		menu->addChild(new MenuSeparator);
-		menu->addChild(createIndexPtrSubmenuItem("Wet Mono Output", {"Do Nothing", "Add R to L (default)"}, &module->monoOutputMode));
+		menu->addChild(createIndexPtrSubmenuItem("Wet Mono Output", {"Add R to L (default)", "Do Nothing"}, &module->monoOutputMode));
 	}
 	PachdeThemedModuleWidget::appendContextMenu(menu);
 }

@@ -76,7 +76,7 @@ void Loop8::process(const ProcessArgs &args) {
 
 	//if there's no leftward module, no reason to process return audio or to load wet audio since there's nowhere to send it
 	if (expandsLeftward) {
-		returnInput.pullAudio(((!muteMe && (soloMe || (soloTracks == 0))) ? true : false), monoInputMode);
+		returnInput.pullAudio(((!muteMe && (soloMe || (soloTracks == 0))) ? true : false), 1 - monoInputMode);
 		
 		if (expandsRightward) {
 			wetAudio.setAudio(rightSource->wetAudio);
