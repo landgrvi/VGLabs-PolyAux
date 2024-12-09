@@ -3,7 +3,7 @@
 Ever wanted an aux effects loop that doesn't mix everything down to stereo first? Playing with quad or surround sound? 
 Maybe you're a frequent user of MixMasterJr and Arena? Yeah, me too!  
 Thus these modules were born.  
-They take up to eight stereo tracks of input, polyphonically, and provide send/return ports for hooking up to polyphonic effects, thus creating an effects loop with eight individual tracks.
+They take up to eight stereo tracks of input, polyphonically, and provide send/return ports for hooking up to polyphonic effects, creating an effects loop with eight individual tracks.
 You can add another loop expander for each additional effect.
 
 Most ports come in sets of three: Interleaved, Left, and Right. These are polyphonic and interleaved is arranged LRLRLRLRLRLRLRLR (like MixMaster's polyphonic outputs).  
@@ -29,7 +29,7 @@ Screenshots and more details are in the individual documents linked below.
 | -- | -- |
 | **[BaseLoop](base.md)** | Module with dry input, track labels, 1 effects loop, and wet output. You need this to get started. |
 | **[Loop](loop.md)** | Effects loop expander which goes to the right of the base, or the right of another loop. Stick on as many of these as you want. |
-| **[Outs](outs.md)** | Extra outputs expander which goes to the left of the base. Available here are dry audio (as summed by the dry input ports) and wet output, split into 16 mono channels. You can only have one (or none) of these.|
+| **[Outs](outs.md)** | Extra outputs expander which goes to the left of the base. Available here are dry audio (as summed by the dry input ports) and wet output, split into 16 mono channels. You can have one or none of these.|
 
 An example way you might wire things up:
 
