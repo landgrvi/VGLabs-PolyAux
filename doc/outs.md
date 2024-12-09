@@ -5,9 +5,8 @@
 This expander goes to the left of the base, and provides some additional outputs for your convenience.
 
 Inputs:
-<ul><ul><ul>
-<li>None.  
-</ul></ul></ul>
+<dl><dd>- None.</dd></dl>
+
 
 Outputs: 
 - Dry output provides the same dry audio that's passed to the loops.
