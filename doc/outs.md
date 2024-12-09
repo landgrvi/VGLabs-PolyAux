@@ -3,9 +3,10 @@
 <img src="Outs.png" align="left">
 
 This expander goes to the left of the base, and provides some additional outputs for your convenience.
-
 Inputs:
-- None.  
+<ul>
+<li>None.  
+</ul>
 
 Outputs: 
 - Dry output provides the same dry audio that's passed to the loops.
@@ -13,7 +14,7 @@ Outputs:
 
 Menu options:
 - Wet output mono:
-	    - Do nothing: Maintains separation of left and right..
-	    - Add R to L (default): If a cable is connected to a left output, with no cable connected to the corresponding right output, the signal on the cable is the sum of the left and right signals.  
+	- Do nothing: Maintains separation of left and right..
+	- Add R to L (default): If a cable is connected to a left output, with no cable connected to the corresponding right output, the signal on the cable is the sum of the left and right signals.  
 	  If a cable is connected to the right output, with no cable connected to the corresponding left output, the signal on the cable is the right signal only.
 
