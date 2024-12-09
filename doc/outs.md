@@ -5,11 +5,11 @@
 This expander goes to the left of the base, and provides some additional outputs for your convenience.
 
 Inputs:
-<dl><dt>&ensp;&ensp;&ensp;None.</dt></dl>
+<dl><dd>&ensp;&ensp;&ensp;None.</dd></dl>
 
 Outputs: 
-- Dry output provides the same dry audio that's passed to the loops.
-- Wet output provides the same wet output available from the base, split into all 16 channels.  
+<dl><dd>&ensp;&ensp;&ensp;Dry output provides the same dry audio that's passed to the loops.</dd>
+<dd>&ensp;&ensp;&ensp;Wet output provides the same wet output available from the base, split into all 16 channels.</dd></dl>  
 
 Menu options:
 - Wet output mono:
