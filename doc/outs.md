@@ -2,7 +2,7 @@
 
 <img src="Outs.png" align="left">
 
-This expander goes to the left of the base, and provides some additional outputs for your convenience.
+This expander goes to the left of the base, and provides some additional outputs for your convenience.  
 Inputs:
 <ul>
 <li>None.  
