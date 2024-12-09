@@ -1,4 +1,4 @@
-<img src="Outs.png" align="left">
+<img src="Outs.png" align="left" width="200">
 
 # Outs - additional outputs
 
