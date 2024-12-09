@@ -11,7 +11,7 @@ You can plug into all three ports. Signals plugged into the left port and the le
 If you plug a cable with more than 8 channels into a left or right port, a warning light goes on. Signals from channels above 8 on those ports are dropped.
 
 Outputs:
-- Wet output: This is the audio after all processing. the same signals will be seen on the interleaved port as on the left and right ports; the left and right ports have only the left and right channels respectively
+- Wet output: This is the audio after all processing. The same signals will be seen on the interleaved port as on the left and right ports; the left and right ports have only the left and right channels respectively.
 
 Controls:
 - Pan knob: Applies the menu-selected pan style to the wet output.
