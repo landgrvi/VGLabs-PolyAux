@@ -2,7 +2,7 @@
 
 <img src="BaseLoop.png" align="right">
 
-This is the module takes in dry audio and puts out wet audio, and that everything else hooks onto. It also contains one effects loop, documented at **[Loop](loop.md)**.  
+This is the core module that takes in dry audio and puts out wet audio, and that everything else hooks onto. It also contains one effects loop, documented at **[Loop](loop.md)**.  
 It can have an Outs expander on its left, and a Loop expander on its right.
 
 Inputs:
