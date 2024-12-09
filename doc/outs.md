@@ -1,3 +1,5 @@
+![Outs screenshot](Outs.png){align=left}
+
 # Outs - additional outputs
 
 This expander goes to the left of the base, and provides some additional outputs for your convenience.
@@ -15,4 +17,3 @@ Menu options:
     - Add R to L (default): If a cable is connected to a left output, with no cable connected to the corresponding right output, the signal on the cable is the sum of the left and right signals.  
       If a cable is connected to the right output, with no cable connected to the corresponding left output, the signal on the cable is the right signal only.
 
-![Outs screenshot](Outs.png)
