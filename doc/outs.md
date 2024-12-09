@@ -1,4 +1,4 @@
-![Outs screenshot](Outs.png){align=left}
+<img src="Outs.png" align="left">
 
 # Outs - additional outputs
 
