@@ -71,16 +71,20 @@ struct PachdeThemedModuleWidget : ModuleWidget, svg_theme::IThemeHolder {
 		panelFilename = asset::plugin(pluginInstance, panelFile);
 		setPanel(createPanel(panelFilename));
 		my_module = module ? module : nullptr;
-		if (my_module && !isDefaultTheme()) {
-			// only initialize themes and modify the svg when the current theme is not the default theme
-			//DEBUG("constructing");
-			if (my_module->initThemes()) {
-				auto theme = my_module->getTheme();
-				if (theme.length() == 0) {
-					//DEBUG("%li has no theme in constructor", my_module->id);
-				} else {
-					//DEBUG("%li has theme %s in constructor", my_module->id, theme.c_str());
-					setTheme(theme);
+		if (my_module) {
+			if (isDefaultTheme()) {
+				my_module->theme = my_module->defaultTheme;
+			} else {
+				// only initialize themes and modify the svg when the current theme is not the default theme
+				//DEBUG("constructing");
+				if (my_module->initThemes()) {
+					auto theme = my_module->getTheme();
+					if (theme.length() == 0) {
+						//DEBUG("%li has no theme in constructor", my_module->id);
+					} else {
+						//DEBUG("%li has theme %s in constructor", my_module->id, theme.c_str());
+						setTheme(theme);
+					}
 				}
 			}
 		}
@@ -162,7 +166,7 @@ struct PachdeThemedModuleWidget : ModuleWidget, svg_theme::IThemeHolder {
 
         // add the "Theme" menu
         //svg_theme::AppendThemeMenu(menu, this, themes);
-        menu->addChild(createSubmenuItem("Themes", "", [=](Menu* menu) {//menu->addChild(createMenuItem("Use Leftmost (not implemented)", "", [=]() {} ));
+        menu->addChild(createSubmenuItem("Themes", "", [=](Menu* menu) {//menu->addChild(createMenuItem("Use Left (not implemented)", "", [=]() {} ));
 																	    svg_theme::AppendThemeMenu(menu, this, my_module->themes); } ));
         
     } 

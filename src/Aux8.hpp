@@ -44,9 +44,9 @@ struct Aux8 : PachdeThemedModule {
 		config(TModule::PARAMS_LEN, TModule::INPUTS_LEN, TModule::OUTPUTS_LEN, TModule::LIGHTS_LEN);
 		char strBuf[32];
 		for (unsigned int i = 0; i < 8; i++) {
-			snprintf(strBuf, 32, "Gain channel %d", i + 1);
+			snprintf(strBuf, 32, "Gain track %d", i + 1);
 			configParam(TModule::GAIN_PARAMS + i, 0.f, 2.f, 1.f, strBuf, " dB", -10, 40.f); 
-			snprintf(strBuf, 32, "Mute channel %d", i + 1);
+			snprintf(strBuf, 32, "Mute track %d", i + 1);
 			configParam(TModule::MUTE_PARAMS + i, 0.f, 1.f, 0.f, strBuf);
 		}
 		configOutput(TModule::INTERLEAVED_SEND, "Interleaved send");
