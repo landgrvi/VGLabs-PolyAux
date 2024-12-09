@@ -1,6 +1,6 @@
-<img src="Outs.png" align="left" width="200">
-
 # Outs - additional outputs
+
+<img src="Outs.png" align="left" width="200">
 
 This expander goes to the left of the base, and provides some additional outputs for your convenience.
 
