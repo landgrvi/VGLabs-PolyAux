@@ -2,7 +2,7 @@
 
 <img src="BaseLoop.png" align="right">
 
-This is the base module that everything else hooks onto. It also contains a loop, documented at **[Loop](loop.md)**.
+This is the base module that everything else hooks onto. It also contains one loop, documented at **[Loop](loop.md)**.
 
 Inputs:
 
