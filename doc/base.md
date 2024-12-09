@@ -22,13 +22,13 @@ If you want finer control of wet and dry mix, add a Loop in your system with lef
 - Track labels: Editable text fields, limited to four characters.
 
 Menus:
-- Master Pan: Sets the pan style for the wet output. For more on panning, see **[Panning info](https://www.cs.cmu.edu/~music/icm-online/readings/panlaws/panlaws.pdf)**.
+- Master Pan: Sets the pan style for the wet output. For more on panning, see this excellent **[article about pan laws](https://www.cs.cmu.edu/~music/icm-online/readings/panlaws/panlaws.pdf)**.
 	- True Pan (L + R): As you pan left, adds right signal to the left channel and decreases it in the right channel.  
 	As you pan right, adds left signal to the right channel and decreases it in the left channel.
 	- Linear Attenuation: I've also seen this referred to as "stereo cut". Decreases the signal that you're panning away from, and doesn't change the signal that you're panning towards.
 	- 3dB Boost (constant power)
 	- 4.5dB Boost (compromise, default)
-	- 6dB Boost (linear): These are the pan laws described in the article linked above, normalised to a gain of 1 with the knob in the middle.
+	- 6dB Boost (linear): These last three are the pan laws described in the article linked above, normalised to a gain of 1 with the knob in the middle.
 - Return Pan: Same as above, but with the option to use the Master Pan setting.
 - Mono Input: 
 	- Copy L to R (default): If a cable is connected to a left input, with no cable connected to the corresponding right input, the right input acts as if it has the same signal as the left input,
