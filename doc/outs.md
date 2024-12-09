@@ -5,7 +5,7 @@
 This expander goes to the left of the base, and provides some additional outputs for your convenience.
 
 Inputs:
-<dl><dd>&ensp;&ensp;None.</dd></dl>
+<dl><dd>&ensp;&ensp;- None.</dd></dl>
 
 
 Outputs: 
