@@ -1,5 +1,3 @@
-<img align="left" src="Outs.png">
-
 # Outs - additional outputs
 
 This expander goes to the left of the base, and provides some additional outputs for your convenience.
@@ -12,3 +10,5 @@ Menu options:
     - Wet output mono:
         - Do nothing: does nothing.
         - Add R to L (default): If a cable is connected to a left output, and no cable is connected to the corresponding right output, the signal is the sum of the left and right signals.
+
+<img align="left" src="Outs.png">
