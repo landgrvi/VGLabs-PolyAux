@@ -15,7 +15,7 @@ Controls:
 - None.
 
 Menus:
-- Wet output mono:
+- Wet Mono Output:
 	- Do nothing: Maintains separation of left and right.
 	- Add R to L (default): If a cable is connected to a left output, with no cable connected to the corresponding right output, the signal on the cable is the sum of the left and right signals.  
 If a cable is connected to a right output, with no cable connected to the corresponding left output, the signal on the cable is the right signal only.
