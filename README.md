@@ -33,4 +33,4 @@ On first run, themes.json will be copied to your rack user directory, so feel fr
 
 An example of how you might wire things up:
 
-![Example](PolyAuxMMJrArenaExample.png)
+![Example](doc/PolyAuxMMJrArenaExample.png)
