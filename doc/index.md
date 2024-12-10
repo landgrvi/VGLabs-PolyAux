@@ -6,6 +6,14 @@ Thus these modules were born.
 They take up to eight stereo tracks of input, polyphonically, and provide send/return ports for hooking up to polyphonic effects, creating an effects loop with eight individual tracks.
 You can add another loop expander for each additional effect.
 
+| Module | Description |
+| -- | -- |
+| **[BaseLoop](base.md)** | Module with dry input, track labels, 1 effects loop, and wet output. You need this to get started. |
+| **[Loop](loop.md)** | Effects loop expander which goes to the right of the base, or the right of another loop. Stick on as many of these as you want. |
+| **[Outs](outs.md)** | Extra outputs expander which goes to the left of the base. Available here are dry audio (as summed by the dry input ports) and wet output, split into 16 mono channels. You can have one or none of these.|
+
+## General Notes
+
 Most ports come in sets of three: Interleaved, Left, and Right. These are polyphonic, and interleaved is arranged LRLRLRLRLRLRLRLR (like MixMaster's polyphonic outputs).  
 For inputs, these are summed: you can plug into all three ports. Signals plugged into the left port and the left channels of the interleaved port are added together, and the same with the right channels.
 If you plug a cable with more than 8 channels into a left or right port, a warning light goes on. Signals from channels above 8 on those ports are dropped.  
@@ -21,14 +29,6 @@ This is unlikely to be audible unless you have a LOT of loops, but it's somethin
 No compression or limiting is applied, so it's possible to get very loud results. Beware!
 
 The modules have a few colour themes included, which you can find in the right-click menu. They're defined in **[themes.json](../res/themes.json)**.
-
-Screenshots and more details are in the individual documents linked below.
-
-| Module | Description |
-| -- | -- |
-| **[BaseLoop](base.md)** | Module with dry input, track labels, 1 effects loop, and wet output. You need this to get started. |
-| **[Loop](loop.md)** | Effects loop expander which goes to the right of the base, or the right of another loop. Stick on as many of these as you want. |
-| **[Outs](outs.md)** | Extra outputs expander which goes to the left of the base. Available here are dry audio (as summed by the dry input ports) and wet output, split into 16 mono channels. You can have one or none of these.|
 
 An example way you might wire things up:
 
