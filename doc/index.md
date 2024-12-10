@@ -30,6 +30,6 @@ No compression or limiting is applied, so it's possible to get very loud results
 
 The modules have a few colour themes included, which you can find in the right-click menu. They're defined in **[themes.json](../res/themes.json)**.
 
-An example way you might wire things up:
+An example of how you might wire things up:
 
 ![Example](PolyAuxMMJrArenaExample.png)
