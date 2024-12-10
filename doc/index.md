@@ -19,7 +19,7 @@ For inputs, these are summed: you can plug into all three ports. Signals plugged
 If you plug a cable with more than 8 channels into a left or right port, a warning light goes on. Signals from channels above 8 on those ports are dropped.  
 For outputs, the same signals will be seen on the interleaved port as on the left and right ports; the left and right ports have only the left and right channels respectively.
 
-Each effects loop has gain and mute per track before the send, and overall level and pan after the return. Each loop can be muted or soloed. Master pan, level, mute, and a wet/dry mix knob are on the base.
+Each effects loop has gain and mute per track before the send, and overall level and pan after the return. Each loop can be muted or soloed. Master pan, level, and mute, as well as a wet/dry mix knob, are on the base.
 
 Basic operation: Audio that goes in the dry input is summed as described above. The gain and mute are applied per track as set by the knobs, and made available at the send outputs.
 The return inputs, with level and pan applied at each loop, are summed at the wet output.  
