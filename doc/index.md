@@ -28,7 +28,7 @@ This is unlikely to be audible unless you have a LOT of loops, but it's somethin
 
 No compression or limiting is applied, so it's possible to get very loud results. Beware!
 
-The modules have a few colour themes included, which you can find in the right-click menu. They're defined in **[themes.json](../res/themes.json)**.
+The modules have a few colour themes included, which you can find in the right-click menu. They're defined in **[themes.json](../res/themes.json)**. Most of the theme code is from **[pachde's svg_theme repo](https://github.com/Paul-Dempsey/svg_theme)**.
 
 An example of how you might wire things up:
 
