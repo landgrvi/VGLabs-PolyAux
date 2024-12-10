@@ -7,25 +7,35 @@ The return signal is processed according to the pan and level controls, and sent
 Each loop can be muted or soloed.
 
 Inputs:
-- Return input: 
+- Return input: Connect the output of your effect here. These are polyphonic, and interleaved is arranged LRLRLRLRLRLRLRLR (like MixMaster's polyphonic outputs).  
+You can plug into all three ports. Signals plugged into the left port and the left channels of the interleaved port are added together, and the same with the right channels.  
+If you plug a cable with more than 8 channels into a left or right port, a warning light goes on. Signals from channels above 8 on those ports are dropped.
 
 Outputs:
-- Send output: 
+- Send output: Connect these to the input of your effect. These are polyphonic, and interleaved is arranged LRLRLRLRLRLRLRLR (like MixMaster's polyphonic outputs).  
+The same signals will be seen on the interleaved port as on the left and right ports; the left and right ports have only the left and right channels respectively.
 
 Controls:
-- Gains/Mutes:
-- Pan: 
-- Level: 
-- Mute:
-- Solo:
+- Gain/Mute knobs: 
+- Pan knob: Applies the menu-selected pan style to the return signal.
+- Level fader: Controls the volume of the return signal.
+- Mute button: Sets send and return signals to 0V, preserving channel counts.
+- Solo button: Solos the loop. Every other non-soloed loop is muted.
 
 Menus:
-- Return pan:
+- Return Pan: Sets the pan style for the wet output. For more on panning, see this **[article about pan laws](https://www.cs.cmu.edu/~music/icm-online/readings/panlaws/panlaws.pdf)**.
+	- Use Master (default): Uses the master pan setting on the base.
+	- True Pan (L + R): As you pan left, adds right signal to the left channel and decreases it in the right channel.  
+	As you pan right, adds left signal to the right channel and decreases it in the left channel.
+	- Linear Attenuation: Decreases the signal that you're panning away from, and doesn't change the signal that you're panning towards.
+	- 3dB Boost (constant power)
+	- 4.5dB Boost (compromise)
+	- 6dB Boost (linear): These last three are the pan laws described in the article linked above, normalised to a gain of 1 with the knob in the middle.
 - Mono input: 
-	- Do nothing: Maintains separation of left and right.
 	- Copy L to R (default): If a cable is connected to a left input, with no cable connected to the corresponding right input, the right input acts as if it has the same signal as the left input,
-	in effect giving you a stereo signal where left and right are copies.  
+	giving you a stereo signal where left and right are copies.  
 If a cable is connected to a right input, with no cable connected to the corresponding left input, the left input has no signal.
+	- Do nothing: Maintains separation of left and right.
 - Themes: Pick one.
 
 

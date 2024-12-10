@@ -36,13 +36,21 @@ void BaseLoop8::process(const ProcessArgs &args) {
 	// This is from the tutorial module, and is a good place to put debug statements
 	blinkPhase += args.sampleTime;
 	if (blinkPhase >= 0.5f) {
+		//DEBUG("%u %u", masterPanMode, oldMasterPanMode);
 		blinkPhase -= 0.5f;
 	}
 
 	firstInput.pullAudio(true, 1 - monoInputMode);
 	sendOutput.setChannelsFromInput(&firstInput);
 
-	firstWithSend.gainAudio(monoGains);
+	if (muteMe || (!soloMe && soloTracks > 0)) {
+		for (unsigned int i = 0; i < 4; i++) {
+			sendOutput.allAudio[i] = 0;
+		}
+		sendOutput.pushAudio();
+	} else {
+		firstWithSend.gainAudio(monoGains);
+	}
 
 	returnInput.pullAudio(((!muteMe && (soloMe || (soloTracks == 0))) ? true : false), 1 - monoInputMode);
 	wetOutput.setChannelsFromInput(&returnInput);
@@ -104,13 +112,13 @@ void BaseLoop8::process(const ProcessArgs &args) {
 } //process
 
 void BaseLoop8::updateGains() {
-	Aux8::updateGains();
 	bool changed = false;
 	float pv = params[MASTER_PAN_PARAM].getValue();
-	if (pv != oldMasterPanVal || masterPanMode != oldMasterPanMode) {
+	if ((pv != oldMasterPanVal) || (masterPanMode != oldMasterPanMode)) {
 		changed = true;
+		//DEBUG("%f %f %u %u changed", pv, oldMasterPanVal, masterPanMode, oldMasterPanMode);
 		oldMasterPanVal = pv;
-		oldMasterPanMode = masterPanMode;
+		//oldMasterPanMode = masterPanMode; //Don't do this here as Aux8 still needs to know
 		setPanVals(masterPanVals, pv, masterPanMode);
 	}
 	float ml = params[MASTER_GAIN_PARAM].getValue();
@@ -125,6 +133,7 @@ void BaseLoop8::updateGains() {
 	}
 	lights[LEFT_IN_LIGHT].setBrightness(inputs[LEFT_INPUT].getChannels() > 8 ? 1 : 0);
 	lights[RIGHT_IN_LIGHT].setBrightness(inputs[RIGHT_INPUT].getChannels() > 8 ? 1 : 0);
+	Aux8::updateGains();
 }
 
 bool BaseLoop8::calcLeftExpansion() {

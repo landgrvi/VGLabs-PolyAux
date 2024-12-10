@@ -72,7 +72,14 @@ void Loop8::process(const ProcessArgs &args) {
 	}
 
 	sendOutput.setChannelsFromInput(&pregainAudio);
-	pregainWithSend.gainAudio(monoGains);
+	if (muteMe || (!soloMe && soloTracks > 0)) {
+		for (unsigned int i = 0; i < 4; i++) {
+			sendOutput.allAudio[i] = 0;
+		}
+		sendOutput.pushAudio();
+	} else {
+		pregainWithSend.gainAudio(monoGains);
+	}
 
 	//if there's no leftward module, no reason to process return audio or to load wet audio since there's nowhere to send it
 	if (expandsLeftward) {

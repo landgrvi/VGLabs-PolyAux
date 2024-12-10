@@ -11,17 +11,16 @@ For inputs, these are summed: you can plug into all three ports. Signals plugged
 If you plug a cable with more than 8 channels into a left or right port, a warning light goes on. Signals from channels above 8 on those ports are dropped.  
 For outputs, the same signals will be seen on the interleaved port as on the left and right ports; the left and right ports have only the left and right channels respectively.
 
-Each effects loop has gains and mute per track before the send, and overall level and pan after the return. Each loop can be muted or soloed. Master pan, level, and mute, and a wet/dry mix knob, are on the base.
+Each effects loop has gain and mute per track before the send, and overall level and pan after the return. Each loop can be muted or soloed. Master pan, level, mute, and a wet/dry mix knob are on the base.
 
-Basic operation: Audio that goes in the dry input is summed as described above. The gains and mutes are applied per track as set by the knobs, and made available at the send outputs.
+Basic operation: Audio that goes in the dry input is summed as described above. The gain and mute are applied per track as set by the knobs, and made available at the send outputs.
 The return inputs, with level and pan applied at each loop, are summed at the wet output.  
-As audio is sent from module to module using Rack's expander mechanism, sample delays between dry input and wet output will accumulate as you add more loops. 
+Audio is sent from module to module using Rack's expander mechanism, so sample delays between dry input and wet output will accumulate as you add more loops. 
 This is unlikely to be audible unless you have a LOT of loops, but it's something to keep in mind if you need exact matching of triggers or anything along those lines. As always, scope is your friend.
 
 No compression or limiting is applied, so it's possible to get very loud results. Beware!
 
-The modules have a few colour themes included, which you can find in the right-click menu.  
-You can add your own in **[themes.json](../res/themes.json)** ???WHERE??? by copying an existing one and changing the name and colours. It's loaded at runtime, so no need to recompile. ???HOW???
+The modules have a few colour themes included, which you can find in the right-click menu. They're defined in **[themes.json](../res/themes.json)**.
 
 Screenshots and more details are in the individual documents linked below.
 

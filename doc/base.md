@@ -1,4 +1,4 @@
-# BaseLoop - the base module
+# BaseLoop - the core module
 
 <img src="BaseLoop.png" align="right">
 
@@ -11,7 +11,8 @@ You can plug into all three ports. Signals plugged into the left port and the le
 If you plug a cable with more than 8 channels into a left or right port, a warning light goes on. Signals from channels above 8 on those ports are dropped.
 
 Outputs:
-- Wet output: This is the audio after all processing. The same signals will be seen on the interleaved port as on the left and right ports; the left and right ports have only the left and right channels respectively.
+- Wet output: This is the audio after all processing. These are polyphonic, and interleaved is arranged LRLRLRLRLRLRLRLR (like MixMaster's polyphonic outputs).  
+The same signals will be seen on the interleaved port as on the left and right ports; the left and right ports have only the left and right channels respectively.
 
 Controls:
 - Pan knob: Applies the menu-selected pan style to the wet output.
@@ -22,10 +23,10 @@ If you want finer control of wet and dry mix, add a Loop in your system with lef
 - Track labels: Editable text fields, limited to four characters.
 
 Menus:
-- Master Pan: Sets the pan style for the wet output. For more on panning, see this excellent **[article about pan laws](https://www.cs.cmu.edu/~music/icm-online/readings/panlaws/panlaws.pdf)**.
+- Master Pan: Sets the pan style for the wet output. For more on panning, see this **[article about pan laws](https://www.cs.cmu.edu/~music/icm-online/readings/panlaws/panlaws.pdf)**.
 	- True Pan (L + R): As you pan left, adds right signal to the left channel and decreases it in the right channel.  
 	As you pan right, adds left signal to the right channel and decreases it in the left channel.
-	- Linear Attenuation: I've also seen this referred to as "stereo cut". Decreases the signal that you're panning away from, and doesn't change the signal that you're panning towards.
+	- Linear Attenuation: Decreases the signal that you're panning away from, and doesn't change the signal that you're panning towards.
 	- 3dB Boost (constant power)
 	- 4.5dB Boost (compromise, default)
 	- 6dB Boost (linear): These last three are the pan laws described in the article linked above, normalised to a gain of 1 with the knob in the middle.
