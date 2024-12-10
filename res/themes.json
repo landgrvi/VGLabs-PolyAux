@@ -13,16 +13,16 @@
             "outbg": {
 				"fill": "#000000"
 			},
-            "logodark": {
+            "logo": {
 				"fill": "#000000"
 			},
-            "logopale": {
+            "title": {
 				"fill": "#887722"
 			},
-            "filldark": {
+            "componentfill": {
 				"fill": "#000000"
 			},
-            "strokedark": {
+            "componentstroke": {
 				"stroke": "#000000"
 			},
             "leddisplaytext": {
@@ -44,16 +44,16 @@
             "outbg": {
 				"fill": "#461621"
 			},
-            "logodark": {
+            "logo": {
 				"fill": "#461621"
 			},
-            "logopale": {
+            "title": {
 				"fill": "#855560"
 			},
-            "filldark": {
+            "componentfill": {
 				"fill": "#461621"
 			},
-            "strokedark": {
+            "componentstroke": {
 				"stroke": "#461621"
 			},
             "leddisplaytext": {
@@ -75,16 +75,16 @@
             "outbg": {
 				"fill": "#333333"
 			},
-            "logodark": {
+            "logo": {
 				"fill": "#222222"
 			},
-            "logopale": {
+            "title": {
 				"fill": "#999999"
 			},
-            "filldark": {
+            "componentfill": {
 				"fill": "#222222"
 			},
-            "strokedark": {
+            "componentstroke": {
 				"stroke": "#222222"
 			},
             "leddisplaytext": {

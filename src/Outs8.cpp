@@ -2,7 +2,7 @@
 #include "BaseLoop8.hpp"
 #include "Outs8.hpp"
 
-Outs8::Outs8() : PachdeThemedModule("res/themes.json", "BlueGreenPurple") {
+Outs8::Outs8() : PachdeThemedModule("res/themes.json", "VGLabs/PolyAux", "BlueGreenPurple") {
 	config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
 	char strBuf[32];
 	configOutput(INTERLEAVED_DRY_OUTPUT, "Interleaved dry");
@@ -11,9 +11,9 @@ Outs8::Outs8() : PachdeThemedModule("res/themes.json", "BlueGreenPurple") {
 	dryOutput.setPorts(&outputs[INTERLEAVED_DRY_OUTPUT], &outputs[LEFT_DRY_OUTPUT], &outputs[RIGHT_DRY_OUTPUT]);
 	
 	for (unsigned int i = 0; i < 16; i += 2) {
-		snprintf(strBuf, 32, "Left wet %d", i / 2 + 1);
+		snprintf(strBuf, 32, "Left wet %u", i / 2 + 1);
 		configOutput(WET_OUTPUTS + i, strBuf);
-		snprintf(strBuf, 32, "Right wet %d", i / 2 + 1);
+		snprintf(strBuf, 32, "Right wet %u", i / 2 + 1);
 		configOutput(WET_OUTPUTS + i + 1, strBuf);
 	}
 	//wetOutput.setPorts(&inputs[TModule::INTERLEAVED_RETURN], &inputs[TModule::LEFT_RETURN], &inputs[TModule::RIGHT_RETURN]);

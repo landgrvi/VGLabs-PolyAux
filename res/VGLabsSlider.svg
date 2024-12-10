@@ -26,9 +26,9 @@
    fit-margin-right="2"
    fit-margin-top="0"
    id="base"
-   inkscape:current-layer="layer1"
-   inkscape:cx="-8.9627852"
-   inkscape:cy="33.522574"
+   inkscape:current-layer="svg163547"
+   inkscape:cx="-27.942801"
+   inkscape:cy="33.610444"
    inkscape:document-units="mm"
    inkscape:pageopacity="0.0"
    inkscape:pageshadow="2"
@@ -44,15 +44,10 @@
    inkscape:pagecheckerboard="0"
    inkscape:deskcolor="#d1d1d1">
 	</sodipodi:namedview>
-<g
-   id="layer1"
-   transform="translate(-105.35713,-95.267905)"
-   inkscape:groupmode="layer"
-   inkscape:label="Layer 1">
-	<path
-   id="slot--filldark"
+<path
+   id="slot--componentfill"
    inkscape:connector-curvature="0"
    d="m 117.16819,96.802414 v 61.182926 c 0,0.84749 -0.36372,1.53453 -0.81238,1.53453 h -2.15477 c -0.44867,0 -0.81238,-0.68704 -0.81238,-1.53453 V 96.802414 c 0,-0.847493 0.36371,-1.534514 0.81238,-1.534514 h 2.15477 c 0.44866,9e-6 0.81238,0.68703 0.81238,1.534514 z"
-   style="fill:#461621;fill-opacity:1;stroke-width:0.610829" />
-</g>
+   style="fill:#461621;fill-opacity:1;stroke-width:0.610829"
+   transform="translate(-105.35713,-95.267904)" />
 </svg>

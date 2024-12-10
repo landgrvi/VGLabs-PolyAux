@@ -40,7 +40,7 @@ struct Aux8 : PachdeThemedModule {
 	expMessage leftMessages[2][1]; // messages to & from left module
 	expMessage rightMessages[2][1]; // messages to & from right module
 	
-    Aux8() : PachdeThemedModule("res/themes.json", "BlueGreenPurple") {
+    Aux8() : PachdeThemedModule("res/themes.json", "VGLabs/PolyAux", "BlueGreenPurple") {
 		config(TModule::PARAMS_LEN, TModule::INPUTS_LEN, TModule::OUTPUTS_LEN, TModule::LIGHTS_LEN);
 		char strBuf[32];
 		for (unsigned int i = 0; i < 8; i++) {

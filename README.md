@@ -8,9 +8,9 @@ You can add another loop expander for each additional effect.
 
 | Module | Description |
 | -- | -- |
-| **[BaseLoop](base.md)** | Module with dry input, track labels, 1 effects loop, and wet output. You need this to get started. |
-| **[Loop](loop.md)** | Effects loop expander which goes to the right of the base, or the right of another loop. Stick on as many of these as you want. |
-| **[Outs](outs.md)** | Extra outputs expander which goes to the left of the base. Available here are dry audio (as summed by the dry input ports) and wet output, split into 16 mono channels. You can have one or none of these.|
+| **[BaseLoop](doc/base.md)** | Module with dry input, track labels, 1 effects loop, and wet output. You need this to get started. |
+| **[Loop](doc/loop.md)** | Effects loop expander which goes to the right of the base, or the right of another loop. Stick on as many of these as you want. |
+| **[Outs](doc/outs.md)** | Extra outputs expander which goes to the left of the base. Available here are dry audio (as summed by the dry input ports) and wet output, split into 16 mono channels. You can have one or none of these.|
 
 ## General Notes
 
