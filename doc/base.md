@@ -24,8 +24,7 @@ If you want finer control of wet and dry mix, add a Loop in your system with lef
 
 Menus:
 - Master Pan: Sets the pan style for the wet output. For more on panning, see this **[article about pan laws](https://www.cs.cmu.edu/~music/icm-online/readings/panlaws/panlaws.pdf)**.
-	- True Pan (L + R): As you pan left, adds right signal to the left channel and decreases it in the right channel.  
-	As you pan right, adds left signal to the right channel and decreases it in the left channel.
+	- True Pan (L + R): Adds signal from the side you're panning away from to the side you're panning towards.
 	- Linear Attenuation: Decreases the signal that you're panning away from, and doesn't change the signal that you're panning towards.
 	- 3dB Boost (constant power)
 	- 4.5dB Boost (compromise, default)

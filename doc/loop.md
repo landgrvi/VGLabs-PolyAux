@@ -16,7 +16,7 @@ Outputs:
 The same signals will be seen on the interleaved port as on the left and right ports; the left and right ports have only the left and right channels respectively.
 
 Controls:
-- Gain/Mute knobs: 
+- Gain/Mute knobs: These adjust the volume per track and can be clicked to mute/unmute.
 - Pan knob: Applies the menu-selected pan style to the return signal.
 - Level fader: Controls the volume of the return signal.
 - Mute button: Sets send and return signals to 0V, preserving channel counts.
@@ -25,8 +25,7 @@ Controls:
 Menus:
 - Return Pan: Sets the pan style for the wet output. For more on panning, see this **[article about pan laws](https://www.cs.cmu.edu/~music/icm-online/readings/panlaws/panlaws.pdf)**.
 	- Use Master (default): Uses the master pan setting on the base.
-	- True Pan (L + R): As you pan left, adds right signal to the left channel and decreases it in the right channel.  
-	As you pan right, adds left signal to the right channel and decreases it in the left channel.
+	- True Pan (L + R): Adds signal from the side you're panning away from to the side you're panning towards.  
 	- Linear Attenuation: Decreases the signal that you're panning away from, and doesn't change the signal that you're panning towards.
 	- 3dB Boost (constant power)
 	- 4.5dB Boost (compromise)
