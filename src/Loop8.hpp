@@ -38,9 +38,9 @@ struct Loop8 : Aux8<Loop8> {
 		LIGHTS_LEN
 	};
 	
-	comboAudio pregainAudio;
+	comboAudio dryAudio;
 	comboAudio wetAudio;
-	comboAudioLinked<comboAudio, comboAudioOut> pregainWithSend;
+	comboAudioLinked<comboAudio, comboAudioOut> dryWithSend;
 	comboAudioLinked<comboAudioIn, comboAudio> returnWithWet;
 	
 	Loop8() ;

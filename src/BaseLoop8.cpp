@@ -64,9 +64,9 @@ void BaseLoop8::process(const ProcessArgs &args) {
 		expMessage* rightSource = (expMessage*)(rightExpander.consumerMessage); // this is mine; my rightExpander.producer message is written by the rightward module, which requests flip
 		
 		for (unsigned int i = 0; i < 4; i++) {
-			rightSink->pregainAudio[i] = firstInput.allAudio[i];
+			rightSink->dryAudio[i] = firstInput.allAudio[i];
 		}
-		rightSink->pregainChans = firstInput.ilChannels;
+		rightSink->dryChans = firstInput.ilChannels;
 		wetInput.setAudio(rightSource->wetAudio);
 		wetInput.setChannels(rightSource->wetChans);
 		wetOutput.setChannels(std::max(wetInput.ilChannels, wetOutput.ilChannels), std::max(wetInput.leftChannels, wetOutput.leftChannels), std::max(wetInput.rightChannels, wetOutput.rightChannels));
@@ -93,9 +93,9 @@ void BaseLoop8::process(const ProcessArgs &args) {
 	if (expandsLeftward) {
 		expMessage* leftSink = (expMessage*)(leftExpander.module->rightExpander.producerMessage); // this is the left module's; I write to it and request flip
 		for (unsigned int i = 0; i < 4; i++) {
-			leftSink->pregainAudio[i] = firstInput.allAudio[i];
+			leftSink->dryAudio[i] = firstInput.allAudio[i];
 		}
-		leftSink->pregainChans = firstInput.ilChannels;
+		leftSink->dryChans = firstInput.ilChannels;
 		if (wetOutput.scales) {
 			for (unsigned int i = 0; i < 2; i++) {
 				leftSink->wetAudio[i] = wetOutput.leftAudio[i] * wetOutput.scalingVals[0] + wetOutput.rightAudio[i] * wetOutput.scalingVals[1];

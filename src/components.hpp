@@ -27,7 +27,7 @@ struct ChickenHeadKnobBlack : ChickenHeadKnob {
 
 struct ChickenHeadKnobIvory : ChickenHeadKnob {
 	ChickenHeadKnobIvory() {
-		setSvg(Svg::load(asset::plugin(pluginInstance, "res/ch3divory.svg")));
+		setSvg(Svg::load(asset::plugin(pluginInstance, "res/ch3divory_nogradient.svg")));
 	}
 };	
 

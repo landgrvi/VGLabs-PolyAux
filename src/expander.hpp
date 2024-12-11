@@ -2,8 +2,8 @@
 
 struct expMessage { // contains both directions
 // These things travel rightwards
-	simd::float_4 pregainAudio[4] = { };
-	unsigned int pregainChans = 0;
+	simd::float_4 dryAudio[4] = { };
+	unsigned int dryChans = 0;
 	unsigned int soloSoFar = 0;
 	unsigned int numModulesSoFar = 0;
 	unsigned int masterPanMode = 3;

@@ -28,8 +28,8 @@ void Outs8::process(const ProcessArgs &args) {
 	if (expandsRightward) {
 		expMessage* rightSink = (expMessage*)(rightExpander.module->leftExpander.producerMessage); // this is the rightward module's; I write to it and request flip
 		expMessage* rightSource = (expMessage*)(rightExpander.consumerMessage); // this is mine; my rightExpander.producer message is written by the rightward module, which requests flip
-		dryOutput.setAudio(rightSource->pregainAudio);
-		dryOutput.setChannels(rightSource->pregainChans);
+		dryOutput.setAudio(rightSource->dryAudio);
+		dryOutput.setChannels(rightSource->dryChans);
 		wetAudio.setAudio(rightSource->wetAudio);
 		rightSink->leftTheme = theme;
 		rightExpander.module->leftExpander.messageFlipRequested = true; // request rightward module to flip its leftExpander, as I've now written to its producer

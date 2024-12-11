@@ -4,7 +4,7 @@
 using namespace rack;
 
 Loop8::Loop8() {
-	pregainWithSend.setPorts(&pregainAudio, &sendOutput);
+	dryWithSend.setPorts(&dryAudio, &sendOutput);
 	returnWithWet.setPorts(&returnInput, &wetAudio);
 }
 
@@ -24,8 +24,8 @@ void Loop8::process(const ProcessArgs &args) {
 
 	
 /* This is ordered to logically process the audio:
- * get pregain from left (if there's a left)
- * send pregain to right (if there's a right)
+ * get dry from left (if there's a left)
+ * send dry unaltered to right (if there's a right)
  * apply gains and push audio to send ports
  * get wet from right (if there's a right)
  * pull audio from return ports
@@ -43,13 +43,13 @@ void Loop8::process(const ProcessArgs &args) {
 */
 
 	if (expandsLeftward) {
-		pregainAudio.setAudio(leftSource->pregainAudio);
-		pregainAudio.setChannels(leftSource->pregainChans);
+		dryAudio.setAudio(leftSource->dryAudio);
+		dryAudio.setChannels(leftSource->dryChans);
 		soloToRight = leftSource->soloSoFar + params[SOLO_PARAM].getValue();
 		numMe = leftSource->numModulesSoFar + 1;
 		masterPanMode = leftSource->masterPanMode;
 	} else { // I'm the leftmost. Don't keep old crap!
-		pregainAudio.clearAudio(); 
+		dryAudio.clearAudio(); 
 		soloToRight = params[SOLO_PARAM].getValue();
 		numMe = 1;
 		masterPanMode = 3;
@@ -57,9 +57,9 @@ void Loop8::process(const ProcessArgs &args) {
 
 	if (expandsRightward) {
 		for (unsigned int i = 0; i < 4; i++) {
-			rightSink->pregainAudio[i] = pregainAudio.allAudio[i];
+			rightSink->dryAudio[i] = dryAudio.allAudio[i];
 		}
-		rightSink->pregainChans = pregainAudio.ilChannels;
+		rightSink->dryChans = dryAudio.ilChannels;
 		rightSink->soloSoFar = soloToRight;
 		rightSink->numModulesSoFar = numMe;
 		rightSink->masterPanMode = masterPanMode;
@@ -71,14 +71,14 @@ void Loop8::process(const ProcessArgs &args) {
 		numModules = numMe;
 	}
 
-	sendOutput.setChannelsFromInput(&pregainAudio);
+	sendOutput.setChannelsFromInput(&dryAudio);
 	if (muteMe || (!soloMe && soloTracks > 0)) {
 		for (unsigned int i = 0; i < 4; i++) {
 			sendOutput.allAudio[i] = 0;
 		}
 		sendOutput.pushAudio();
 	} else {
-		pregainWithSend.gainAudio(monoGains);
+		dryWithSend.gainAudio(monoGains);
 	}
 
 	//if there's no leftward module, no reason to process return audio or to load wet audio since there's nowhere to send it
