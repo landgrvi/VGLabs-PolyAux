@@ -13,7 +13,7 @@ struct Loop8 : Aux8<Loop8> {
 		RETURN_GAIN_PARAM,
 		SOLO_PARAM,
 		MUTE_PARAM,
-		TEST_PARAM,
+		SCHEMA_PARAM,
 		PARAMS_LEN
 	};
 	enum InputId {

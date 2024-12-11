@@ -14,6 +14,7 @@ BaseLoop8::BaseLoop8() {
 	configParam(MASTER_GAIN_PARAM, 0.f, M_SQRT2, 1.f, "Master level", " dB", -10, 40);
 	configParam(MASTER_MUTE_PARAM, 0.f, 1.f, 0.f, "Master mute");
 	configParam(DRYPLUS_PARAM, 0.f, 1.f, 1.f, "Dry/Wet mix", "%", 0.f, 100.f);
+	configParam(SCHEMA_PARAM, 0, 10, 0, "Schema");	
 	configInput(INTERLEAVED_INPUT, "Interleaved");
 	configInput(LEFT_INPUT, "Left");
 	configInput(RIGHT_INPUT, "Right");

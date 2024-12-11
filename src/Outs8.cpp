@@ -4,6 +4,7 @@
 
 Outs8::Outs8() : PachdeThemedModule("res/themes.json", "VGLabs/PolyAux", "BlueGreenPurple") {
 	config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
+	configParam(SCHEMA_PARAM, 0, 10, 0, "Schema");	
 	char strBuf[32];
 	configOutput(INTERLEAVED_DRY_OUTPUT, "Interleaved dry");
 	configOutput(LEFT_DRY_OUTPUT, "Left dry");

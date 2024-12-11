@@ -22,14 +22,12 @@ struct PachdeThemedModule : Module {
 		std::string userStorage = system::getDirectory(asset::user("")) + "/" + storageDir + "/";
 		std::string userThemeFile = userStorage + themeFile;
 		std::string userThemeDir = system::getDirectory(userThemeFile);
-		DEBUG("%s", userThemeFile.c_str());
 		if (system::isFile(userThemeFile)) {
 			themeFilename = userThemeFile;
 		} else if (pluginThemeFile.size() > 0 && (system::isDirectory(userThemeDir) || system::createDirectories(userThemeDir))) {
 			if (system::copy(pluginThemeFile, userThemeFile)) themeFilename = userThemeFile;
 		}
 			
-		DEBUG("%s %s", pluginThemeFile.c_str(), system::getCanonical(userThemeFile).c_str());
 		this->defaultTheme = defaultTheme;
 	// For demo and authoring purposes, we log to the Rack log.
 	//

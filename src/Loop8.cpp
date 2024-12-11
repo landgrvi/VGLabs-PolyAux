@@ -4,6 +4,7 @@
 using namespace rack;
 
 Loop8::Loop8() {
+	configParam(SCHEMA_PARAM, 0, 10, 0, "Schema");	
 	dryWithSend.setPorts(&dryAudio, &sendOutput);
 	returnWithWet.setPorts(&returnInput, &wetAudio);
 }

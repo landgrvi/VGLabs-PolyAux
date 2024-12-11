@@ -17,7 +17,7 @@ struct BaseLoop8 : Aux8<BaseLoop8> {
 		RETURN_GAIN_PARAM,
 		SOLO_PARAM,
 		MUTE_PARAM,
-		TEST_PARAM,
+		SCHEMA_PARAM,
 		PARAMS_LEN
 	};
 	enum InputId {

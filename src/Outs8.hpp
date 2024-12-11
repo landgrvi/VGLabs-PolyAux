@@ -8,6 +8,7 @@ using namespace rack;
 
 struct Outs8 : PachdeThemedModule {
 	enum ParamId {
+		SCHEMA_PARAM,
 		PARAMS_LEN
 	};
 	enum InputId {
