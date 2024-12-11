@@ -3,7 +3,7 @@
 <img src="Outs.png" align="right">
 
 This expander goes to the left of a BaseLoop, and provides some additional outputs for your convenience.  
-For general information about this plugin, see the **[README](../README.md)**
+For general information about this plugin, see the **[README](../README.md)**.
 
 Inputs:
 - None.
