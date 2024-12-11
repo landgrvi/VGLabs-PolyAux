@@ -31,7 +31,7 @@ This is unlikely to be audible unless you have a LOT of loops, but it's somethin
 No compression or limiting is applied, so it's possible to get very loud results. Beware!
 
 The modules have a few colour themes included, which you can find in the right-click menu. They're defined in **[res/themes.json](../res/themes.json)**. Most of the theme code is from **[pachde's svg_theme repo](https://github.com/Paul-Dempsey/svg_theme)**.
-On first run, themes.json will be copied to your rack user directory, so feel free to add more themes or alter the existing ones there.
+On first run, themes.json will be copied into VGLabs/PolyAux under your rack user directory, so feel free to add more themes or alter the existing ones there.
 
 An example of how you might wire things up:
 
