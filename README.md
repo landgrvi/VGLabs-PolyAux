@@ -6,6 +6,8 @@ Thus these modules were born.
 They take up to eight stereo tracks of input, polyphonically, and provide send/return ports for hooking up to polyphonic effects, creating an effects loop with eight individual tracks.
 You can add another loop expander for each additional effect.
 
+![Assembled](doc/OutsBaseLoopLoopLoopLoop.png)
+
 | Module | Description |
 | -- | -- |
 | **[BaseLoop](doc/base.md)** | Module with dry input, track labels, 1 effects loop, and wet output. You need this to get started. |

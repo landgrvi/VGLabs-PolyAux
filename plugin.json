@@ -17,6 +17,7 @@
       "slug": "BaseLoop8",
       "name": "PolyAux 8-channel Base",
       "description": "PolyAux 8-channel base with 1 effects loop",
+      "manualUrl": "https://github.com/landgrvi/VGLabs-PolyAux/blob/v2/doc/base.md",
       "tags": [
         "Polyphonic",
         "Utility"
@@ -26,6 +27,7 @@
       "slug": "Loop8",
       "name": "PolyAux 8-channel Loop",
       "description": "PolyAux 8-channel effects loop expander (goes on right side of base or loop)",
+      "manualUrl": "https://github.com/landgrvi/VGLabs-PolyAux/blob/v2/doc/loop.md",
       "tags": [
         "Polyphonic",
         "Utility"
@@ -35,6 +37,7 @@
       "slug": "Outs8",
       "name": "PolyAux 8-channel Outputs",
       "description": "PolyAux 8-channel additional output expander (goes on left side of base)",
+      "manualUrl": "https://github.com/landgrvi/VGLabs-PolyAux/blob/v2/doc/outs.md",
       "tags": [
         "Polyphonic",
         "Utility"

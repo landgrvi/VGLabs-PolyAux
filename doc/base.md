@@ -3,7 +3,8 @@
 <img src="BaseLoop.png" align="right">
 
 This is the core module that takes in dry audio and puts out wet audio, and that everything else hooks onto. It also contains one effects loop, documented at **[Loop](loop.md)**.  
-It can have an Outs expander on its left, and Loop expanders on its right.
+It can have an Outs expander on its left, and Loop expanders on its right.  
+For general information about this plugin, see the **[README](../README.md)**
 
 Inputs:
 - Dry input: This gets audio into the system. These are polyphonic, and interleaved is arranged LRLRLRLRLRLRLRLR (like MixMaster's polyphonic outputs).  

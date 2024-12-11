@@ -4,7 +4,8 @@
 
 This expander goes to the right of a BaseLoop or a Loop. It gets the dry audio from the base, applies the gains and mutes set by the knobs for each track, and puts that on the send output ports.  
 The return signal is processed according to the pan and level controls, and sent back to the base to be added to the wet audio.  
-Each loop can be muted or soloed.
+Each loop can be muted or soloed.  
+For general information about this plugin, see the **[README](../README.md)**
 
 Inputs:
 - Return input: Connect the output of your effect here. These are polyphonic, and interleaved is arranged LRLRLRLRLRLRLRLR (like MixMaster's polyphonic outputs).  
